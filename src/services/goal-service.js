@@ -13,8 +13,10 @@ exports.uploadPhotoAndValidate = async (req) => {
 
   if (goal.type === 'personal') {
     await saveValidationResult(goalId, userId, photoUrl);
+    return photoUrl;
   } else if (goal.type === 'team') {
     await notifyTeamMemebers(goalId, userId, photoUrl);
+    return photoUrl;
   } else {
     throw new Error('유효한 목표 타입이 아닙니다.');
   }
