@@ -7,7 +7,7 @@ exports.getGoalById = async (goalId) => {
 
 exports.saveValidationResult = async (goalId, photoUrl) => {
   await pool.query(
-    'insert into goal_validations (goal_id, validation_data) values(?, ?)',
+    'insert into goal_validation (goal_id, validation_data) values(?, ?)',
     [goalId, photoUrl]
   );
 };
@@ -17,6 +17,8 @@ exports.notifyTeamMembers = async (goalId, user, photoUrl) => {
     'select user_id from team_members where team_goal_id = ?',
     [goalId]
   );
+  console.log('Members:', members); // 디버깅용 로그
+
   const goal = await this.getGoalById(goalId);
   const requesterName = user.nickname; // res.locals.user에서 가져온 사용자 정보
 
@@ -30,10 +32,16 @@ exports.notifyTeamMembers = async (goalId, user, photoUrl) => {
           title: goal.title,
         },
       });
-      await pool.query(
-        'insert into notifications (user_id, content) values (?, ?)',
-        [member.user_id, content]
-      );
+      console.log('Notification Content:', content); // 디버깅용 로그
+      try {
+        await pool.query(
+          'INSERT INTO notifications (user_id, content) VALUES (?, ?)',
+          [member.user_id, content]
+        );
+        console.log(`Notification inserted for user ${member.user_id}`); // 성공 로그
+      } catch (error) {
+        console.error('Error inserting notification:', error); // 에러 로그
+      }
     }
   }
 };
