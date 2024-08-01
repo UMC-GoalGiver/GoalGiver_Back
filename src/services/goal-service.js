@@ -1,7 +1,7 @@
 const {
   getGoalById,
   saveValidationResult,
-  notifyTeamMemebers,
+  notifyTeamMembers,
 } = require('../models/goal-model');
 
 exports.uploadPhotoAndValidate = async (req, user) => {
@@ -17,7 +17,7 @@ exports.uploadPhotoAndValidate = async (req, user) => {
     await saveValidationResult(goalId, photoUrl);
     return photoUrl;
   } else if (goal.type === 'team') {
-    await notifyTeamMemebers(goalId, user, photoUrl);
+    await notifyTeamMembers(goalId, user, photoUrl);
     return photoUrl;
   } else {
     throw new Error('유효한 목표 타입이 아닙니다.');
