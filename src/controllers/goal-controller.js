@@ -1,4 +1,4 @@
-const uploadPhotoAndValidate = require('../services/goal-service');
+const { uploadPhotoAndValidate } = require('../services/goal-service');
 
 // exports.imageTesting = async (req, res) => {
 //   console.log(req.file);
@@ -9,7 +9,7 @@ const uploadPhotoAndValidate = require('../services/goal-service');
 
 exports.validatePhoto = async (req, res) => {
   try {
-    const result = await uploadPhotoAndValidate(req);
+    const result = await uploadPhotoAndValidate(req, res.locals.user);
     res.status(200).json({ message: '인증 성공', data: result });
   } catch (error) {
     res

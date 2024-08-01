@@ -6,7 +6,7 @@ const { imageUploader } = require('../middlewares/image-upload');
 const goalRouter = express.Router();
 
 goalRouter.post(
-  ':goalId/validate/photo',
+  '/:goalId/validate/photo',
   imageUploader.single('photo'),
   validatePhoto
 );
