@@ -7,3 +7,10 @@ exports.getGoalById = async (goalId) => {
   }
   return rows[0];
 };
+
+exports.insertGoalValidation = async (goalId, latitude, longitude) => {
+  await pool.query(
+    'insert into goal_validation (goal_id, validation_data) values (?, ?)',
+    [goalId, JSON.stringify({ latitude, longitude })]
+  );
+};

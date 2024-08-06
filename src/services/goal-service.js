@@ -1,4 +1,4 @@
-const { getGoalById } = require('../models/goal-model');
+const { getGoalById, insertGoalValidation } = require('../models/goal-model');
 
 exports.calculateLocation = async (
   goalId,
@@ -8,8 +8,6 @@ exports.calculateLocation = async (
   const goal = await getGoalById(goalId);
   if (!goal) {
     throw new Error('목표가 없습니다');
-  } else {
-    console.log(goal);
   }
 
   const savedLatitude = goal.latitude;
@@ -23,7 +21,11 @@ exports.calculateLocation = async (
   );
 
   const allowedDistance = 50; // 오차 범위 - 50미터
-  return distance <= allowedDistance;
+  if (distance <= allowedDistance) {
+    await insertGoalValidation(goalId, currentLatitude, currentLongitude);
+    return true;
+  }
+  return false;
 };
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -42,8 +44,6 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   const distance = earthRadius * c; // 두 지점 간의 거리 (미터)
-
-  console.log(distance);
 
   return distance;
 };
