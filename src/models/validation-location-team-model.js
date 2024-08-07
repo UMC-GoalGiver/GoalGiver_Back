@@ -13,8 +13,8 @@ const findvalidationById = async (goalId, userId) => {
       g.validation_type,
       d.name as donation_organization,
       g.donation_amount as donation_point
-    FROM goals g
-    LEFT JOIN donation_organizations d ON g.donation_organization_id = d.id
+    FROM Goals g
+    LEFT JOIN Donation_Organizations d ON g.donation_organization_id = d.id
     WHERE g.id = ? AND g.user_id = ? AND g.status = 'ongoing';
   `;
 
@@ -33,13 +33,40 @@ const findvalidationById = async (goalId, userId) => {
     let validationQuery;
     const nowISOString = now.toISOString();
 
+    // Progress percent 계산
+    if (goal.type === 'personal') {
+      const [totalValidationResult] = await db.query(
+        'SELECT COUNT(*) AS validated_instances FROM Goal_Validation WHERE goal_id = ?',
+        [goalId]
+      );
+      const [totalInstancesResult] = await db.query(
+        'SELECT COUNT(*) AS total_instances FROM Goal_Instances WHERE goal_id = ?',
+        [goalId]
+      );
+
+      const totalInstances = totalInstancesResult[0].total_instances;
+      const validatedInstances = totalValidationResult[0].validated_instances;
+      const progressPercent = totalInstances > 0 ? (validatedInstances / totalInstances) * 100 : 0;
+
+      goal.progress_percent = Math.round(progressPercent);
+    } else if (goal.type === 'team') {
+      const [teamValidationResult] = await db.query(
+        'SELECT is_accepted FROM Team_Validation WHERE validation_id IN (SELECT id FROM Goal_Validation WHERE goal_id = ?)',
+        [goalId]
+      );
+
+      // 팀 검증의 경우, is_accepted가 true인 경우 100%, false인 경우 0%
+      const isAccepted = teamValidationResult.length > 0 && teamValidationResult.every(validation => validation.is_accepted);
+      goal.progress_percent = isAccepted ? 100 : 0;
+    }
+
     // goal의 validation_type과 type에 따라 다른 validation 쿼리를 설정
     if (goal.validation_type === 'location') {
       if (goal.type === 'personal') {
         validationQuery = `
           SELECT
             gv.validated_at as date
-          FROM goal_validation gv
+          FROM Goal_Validation gv
           WHERE gv.goal_id = ?
             AND gv.validated_at BETWEEN ? AND ?
         `;
@@ -47,9 +74,9 @@ const findvalidationById = async (goalId, userId) => {
         validationQuery = `
           SELECT
             tv.accepted_at as date
-          FROM team_validation tv
+          FROM Team_Validation tv
           WHERE tv.validation_id IN (
-            SELECT id FROM goal_validation WHERE goal_id = ?
+            SELECT id FROM Goal_Validation WHERE goal_id = ?
           )
             AND tv.accepted_at BETWEEN ? AND ?
             AND tv.is_accepted = TRUE
@@ -61,9 +88,9 @@ const findvalidationById = async (goalId, userId) => {
       validationQuery = `
         SELECT
           tv.accepted_at as date
-        FROM team_validation tv
+        FROM Team_Validation tv
         WHERE tv.validation_id IN (
-          SELECT id FROM goal_validation WHERE goal_id = ?
+          SELECT id FROM Goal_Validation WHERE goal_id = ?
         )
           AND tv.accepted_at BETWEEN ? AND ?
           AND tv.is_accepted = TRUE
@@ -87,6 +114,9 @@ const findvalidationById = async (goalId, userId) => {
       const kstDate = new Date(new Date(entry.date).getTime() + KST_OFFSET);
       return { ...entry, date: kstDate.toISOString() };
     });
+
+
+
 
     return goal;
   } catch (error) {
