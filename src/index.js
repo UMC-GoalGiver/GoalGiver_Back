@@ -1,17 +1,23 @@
+// 1. 표준 라이브러리
 const express = require('express');
+
+// 2. 외부 라이브러리
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const morgan = require('morgan');
-dotenv.config();
 
+// 3. 내부 모듈
+dotenv.config();
 const db = require('../config/database.js');
 
-//라우터 선언
-const weeklyGoalRoutes = require('./routes/weekly-goal-routes');
-const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
-const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
-const locationAndTeamValidationRoutes = require('./routes/validation-location-team-routes.js');
+// 라우터 선언
+//const weeklyGoalRoutes = require('./routes/weekly-goal-routes');
+//const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
+//const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
+//const validationLocationAndTeamRoutes = require('./routes/validation-location-team-routes.js');
+const teamGoalTimeAttackRoutes = require('./routes/timeattack-goal-routes.js');
 
+// Express 앱 설정
 const app = express();
 app.set('port', process.env.PORT || 8000);
 
@@ -30,18 +36,19 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(express.json());
+
+
 app.use(express.urlencoded({ extended: false }));
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-//라우터
-app.use('/goals', weeklyGoalRoutes);
-app.use('/goals', monthlyGoalRoutes);
-app.use('/goals', yearlyGoalRoutes);
-app.use('/goals', locationAndTeamValidationRoutes);
 
 
+// 라우터
+//app.use('/goals', weeklyGoalRoutes);
+//app.use('/goals', monthlyGoalRoutes);
+//app.use('/goals', yearlyGoalRoutes);
+//app.use('/goals', validationLocationAndTeamRoutes);
+app.use('/goals', teamGoalTimeAttackRoutes);
+
+// 404 에러 처리 미들웨어
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
   error.status = 404;
@@ -58,10 +65,7 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
-
-// app.listen(app.get('3000'), () => {
-//   console.log(app.get('3000'), '번 포트에서 대기중');
-// });
+// 서버 시작
 const port = 3000;
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
