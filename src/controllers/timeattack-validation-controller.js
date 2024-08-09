@@ -1,6 +1,7 @@
-const goalService = require('../services/timeattack-goal-sevices.js');
+//팀 목표 인증내역
+const goalService = require('../services/timeattack-validation-service');
 
-// 팀미션(타임어택) 진행상황
+//팀 목표 인증내역
 const getTeamGoalTimeAttack = async (req, res) => {
   const goalId = parseInt(req.params.goal_id, 10);
   const userId = parseInt(req.query.user_id, 10);

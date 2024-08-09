@@ -15,7 +15,8 @@ const db = require('../config/database.js');
 //const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
 //const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
 //const validationLocationAndTeamRoutes = require('./routes/validation-location-team-routes.js');
-const teamGoalTimeAttackRoutes = require('./routes/timeattack-goal-routes.js');
+//const teamGoalTimeAttackRoutes = require('./routes/timeattack-goal-routes.js');
+const teamGoalTimeAttackValidationRoutes = require('./routes/timeattack-validation-routes.js');
 
 // Express 앱 설정
 const app = express();
@@ -36,17 +37,15 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(express.json());
-
-
 app.use(express.urlencoded({ extended: false }));
-
 
 // 라우터
 //app.use('/goals', weeklyGoalRoutes);
 //app.use('/goals', monthlyGoalRoutes);
 //app.use('/goals', yearlyGoalRoutes);
 //app.use('/goals', validationLocationAndTeamRoutes);
-app.use('/goals', teamGoalTimeAttackRoutes);
+//app.use('/goals', teamGoalTimeAttackRoutes);
+app.use('/goals', teamGoalTimeAttackValidationRoutes);
 
 // 404 에러 처리 미들웨어
 app.use((req, res, next) => {
