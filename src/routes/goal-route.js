@@ -11,7 +11,7 @@ const goalRouter = express.Router();
  * @param {string} goalId - 인증할 목표 ID
  */
 goalRouter.post(
-  '/:goalId/validate/photo',
+  '/:goalInstanceId/validate/photo',
   imageUploader.single('photo'),
   goalController.validatePhoto
 );
