@@ -15,6 +15,9 @@ const s3 = new AWS.S3({
 
 const allowedExtensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif'];
 
+/**
+ * 이미지 업로드를 위한 미들웨어
+ */
 exports.imageUploader = multer({
   storage: multerS3({
     s3: s3, // S3 객체
