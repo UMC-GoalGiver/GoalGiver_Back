@@ -7,7 +7,7 @@ dotenv.config();
 const goalRouter = require('./routes/goal-route');
 
 const app = express();
-app.set('port', process.env.PORT || 8000);
+app.set('port', process.env.PORT);
 
 if (process.env.NODE_ENV === 'production') {
   app.enable('trust proxy');
@@ -28,6 +28,10 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/goal', goalRouter);
 
+app.use('/', (req, res) => {
+  res.send('아무것도 없슴');
+});
+
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
   error.status = 404;
@@ -35,5 +39,5 @@ app.use((req, res, next) => {
 });
 
 app.listen(app.get('port'), () => {
-  console.log(app.get('port'), '번 포트에서 대기중');
+  console.log('http://localhost:3000/');
 });
