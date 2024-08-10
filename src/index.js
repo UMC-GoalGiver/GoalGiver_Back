@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 const goalRouter = require('./routes/goal-route');
+const { setTestUser } = require('./middlewares/set-test-user');
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(setTestUser);
 app.use('/goal', goalRouter);
 
 app.use((req, res, next) => {

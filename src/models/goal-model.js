@@ -27,7 +27,7 @@ exports.areAllTeamMembersAccepted = async (instanceId) => {
     [instanceId]
   );
 
-  return rows[0].total === rows[0].accepted;
+  return rows[0].total === Number(rows[0].accepted);
 };
 
 /**
