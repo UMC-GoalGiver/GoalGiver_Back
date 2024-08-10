@@ -62,3 +62,26 @@ exports.getUserGoals = async (userId) => {
     throw error;
   }
 };
+
+// 작성자: Minjae Han
+
+const {
+  createPersonalGoal,
+  createTeamGoal,
+  createGoalRepeat,
+} = require('../models/goal-model');
+
+exports.createGoal = async (goalData) => {
+  let newGoal;
+  if (goalData.type === 'team') {
+    newGoal = await createTeamGoal(goalData);
+  } else {
+    newGoal = await createPersonalGoal(goalData);
+  }
+
+  if (goalData.repeatType) {
+    await createGoalRepeat(newGoal.id, goalData);
+  }
+
+  return newGoal;
+};
