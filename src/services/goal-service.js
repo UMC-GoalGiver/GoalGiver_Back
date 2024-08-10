@@ -2,6 +2,7 @@ const {
   getGoalByInstanceId,
   saveValidationResult,
   notifyTeamMembers,
+  initializeTeamValidation,
 } = require('../models/goal-model');
 
 /**
@@ -28,6 +29,9 @@ exports.uploadPhotoAndValidate = async (req, user) => {
     await saveValidationResult(goalInstance.id, instanceId, photoUrl);
     return photoUrl;
   } else if (goalInstance.type === 'team') {
+    await saveValidationResult(goalInstance.id, instanceId, photoUrl);
+
+    await initializeTeamValidation(instanceId, user.id);
     await notifyTeamMembers(instanceId, user, photoUrl);
     return photoUrl;
   } else {

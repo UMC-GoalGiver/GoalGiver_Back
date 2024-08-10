@@ -74,3 +74,32 @@ exports.notifyTeamMembers = async (instanceId, user, photoUrl) => {
     }
   }
 };
+
+/**
+ * @function initializeTeamValidation
+ * @description 팀 목표의 인증을 초기화하고 팀원 정보를 삽입합니다.
+ * @param {number} instanceId - 목표 인스턴스 ID
+ * @param {number} requesterId - 요청자의 사용자 ID
+ */
+exports.initializeTeamValidation = async (instanceId, requesterId) => {
+  // 팀원 정보를 가져옵니다.
+  const [members] = await pool.query(
+    'SELECT user_id FROM team_members WHERE team_goal_id = (select goal_id from goal_instances where id = ?)',
+    [instanceId]
+  );
+
+  // 팀원 정보가 없을 경우 오류를 반환합니다.
+  if (members.length === 0) {
+    throw new Error('팀원 정보를 찾을 수 없습니다.');
+  }
+
+  // 각 팀원에 대해 team_validation에 기본값을 삽입합니다.
+  for (const member of members) {
+    if (member.user_id !== requesterId) {
+      await pool.query(
+        'INSERT INTO team_validation (validation_id, user_id) VALUES ((SELECT id FROM goal_validation WHERE goal_instance_id = ?), ?)',
+        [instanceId, member.user_id]
+      );
+    }
+  }
+};
