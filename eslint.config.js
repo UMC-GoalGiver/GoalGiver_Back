@@ -19,6 +19,10 @@ module.exports = [
         process: 'readonly',
         // 추가된 전역 변수
         console: 'readonly',
+        // Jest 전역 변수
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
       },
     },
     rules: {
