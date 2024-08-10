@@ -1,10 +1,23 @@
 const pool = require('../../config/database');
 
+/**
+ * @function getGoalById
+ * @description 목표 ID로 목표 정보를 조회합니다.
+ * @param {number} goalId - 조회할 목표 ID
+ * @returns {Promise<Object>} 목표 정보 객체
+ * @throws {Error} 데이터베이스 조회 에러
+ */
 exports.getGoalById = async (goalId) => {
   const [rows] = await pool.query('select * from goals where id = ?', [goalId]);
   return rows[0];
 };
 
+/**
+ * @function saveValidationResult
+ * @description 목표 인증 결과를 저장합니다.
+ * @param {number} goalId - 목표 ID
+ * @param {string} photoUrl - 인증 사진 URL
+ */
 exports.saveValidationResult = async (goalId, photoUrl) => {
   await pool.query(
     'insert into goal_validation (goal_id, validation_data) values(?, ?)',
@@ -12,6 +25,13 @@ exports.saveValidationResult = async (goalId, photoUrl) => {
   );
 };
 
+/**
+ * @function notifyTeamMembers
+ * @description 팀 목표 인증 요청을 팀원들에게 알립니다.
+ * @param {number} goalId - 목표 ID
+ * @param {Object} user - 요청한 사용자 정보
+ * @param {string} photoUrl - 인증 사진 URL
+ */
 exports.notifyTeamMembers = async (goalId, user, photoUrl) => {
   const [members] = await pool.query(
     'select user_id from team_members where team_goal_id = ?',
