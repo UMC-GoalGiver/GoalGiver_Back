@@ -3,8 +3,8 @@ const pool = require('../../config/database');
 /**
  * @function getGoalsByDateRange
  * @description 특정 날짜 범위 내의 목표 인스턴스를 조회합니다.
- * @param {string} week_start - 주간 시작 날짜 (YYYY-MM-DD)
- * @param {string} week_end - 주간 종료 날짜 (YYYY-MM-DD)
+ * @param {string} week_start - 조회 시작 날짜 (YYYY-MM-DD)
+ * @param {string} week_end - 조회 종료 날짜 (YYYY-MM-DD)
  * @returns {Promise<Array>} 목표 인스턴스 배열
  * @throws {Error} 데이터베이스 조회 에러
  */
