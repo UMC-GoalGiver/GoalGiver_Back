@@ -97,3 +97,18 @@ exports.initializeTeamValidation = async (instanceId, requesterId) => {
     }
   }
 };
+
+/**
+ * @function checkForExistingValidation
+ * @description 중복 인증 데이터를 확인합니다.
+ * @param {number} instanceId - 목표 인스턴스 ID
+ * @param {string} photoUrl - 인증 사진 URL
+ * @returns {Promise<boolean>} 중복 여부
+ */
+exports.checkForExistingValidation = async (instanceId, photoUrl) => {
+  const query =
+    'SELECT COUNT(*) as count FROM goal_validation WHERE goal_instance_id = ? AND validation_data = ?';
+  const [rows] = await pool.execute(query, [instanceId, photoUrl]);
+
+  return rows[0].count > 0; // 중복이 있으면 true, 없으면 false
+};

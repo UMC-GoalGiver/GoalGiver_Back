@@ -3,6 +3,7 @@ const {
   saveValidationResult,
   notifyTeamMembers,
   initializeTeamValidation,
+  checkForExistingValidation,
 } = require('../models/goal-model');
 
 /**
@@ -27,6 +28,15 @@ exports.uploadPhotoAndValidate = async (req, user) => {
   }
   if (goalInstance.type !== 'personal' && goalInstance.type !== 'team') {
     throw new Error('유효한 목표 타입이 아닙니다.');
+  }
+
+  // 중복 데이터 검사
+  const existingValidation = await checkForExistingValidation(
+    instanceId,
+    photoUrl
+  );
+  if (existingValidation) {
+    throw new Error('이미 인증된 요청입니다.');
   }
 
   await saveValidationResult(goalInstance.id, instanceId, photoUrl);
