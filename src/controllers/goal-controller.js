@@ -21,6 +21,7 @@ exports.getWeeklyGoals = async (req, res, next) => {
     res.status(200).json(goals);
   } catch (err) {
     console.error('주간 목표 조회 에러', err);
+    res.status(500).json({ message: '주간 목표 조회 에러' });
     next(err);
   }
 };
