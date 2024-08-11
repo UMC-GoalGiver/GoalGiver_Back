@@ -1,3 +1,5 @@
+// goal-controller.test.js
+
 // 작성자: Minjae Han
 
 const request = require('supertest');
@@ -20,9 +22,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', goalRouter);
+app.use('/goal', goalRouter); // 라우터 설정을 '/goal'로 변경
 
-describe('GET /goals', () => {
+describe('GET /goal', () => {
   it('should return user goals', async () => {
     const mockGoals = [
       {
@@ -42,7 +44,7 @@ describe('GET /goals', () => {
     });
 
     const response = await request(app)
-      .get('/goals')
+      .get('/goal') // '/goals' -> '/goal'로 수정
       .set('Authorization', 'Bearer fake-jwt-token');
 
     expect(response.status).toBe(StatusCodes.OK);
@@ -56,7 +58,7 @@ describe('GET /goals', () => {
     mockGetUserGoals.mockRejectedValue(new Error('Something went wrong'));
 
     const response = await request(app)
-      .get('/goals')
+      .get('/goal') // '/goals' -> '/goal'로 수정
       .set('Authorization', 'Bearer fake-jwt-token');
 
     expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -64,7 +66,7 @@ describe('GET /goals', () => {
   });
 });
 
-describe('POST /goals', () => {
+describe('POST /goal', () => {
   it('should create a personal goal', async () => {
     const mockGoal = {
       id: 1,
@@ -83,7 +85,7 @@ describe('POST /goals', () => {
     mockCreateGoal.mockResolvedValue(mockGoal);
 
     const response = await request(app)
-      .post('/goals')
+      .post('/goal') // '/goals' -> '/goal'로 수정
       .send(mockGoal)
       .set('Authorization', 'Bearer fake-jwt-token');
 
@@ -110,7 +112,7 @@ describe('POST /goals', () => {
     mockCreateGoal.mockResolvedValue(mockGoal);
 
     const response = await request(app)
-      .post('/goals')
+      .post('/goal') // '/goals' -> '/goal'로 수정
       .send(mockGoal)
       .set('Authorization', 'Bearer fake-jwt-token');
 
@@ -120,7 +122,7 @@ describe('POST /goals', () => {
 
   it('should return an error if required fields are missing', async () => {
     const response = await request(app)
-      .post('/goals')
+      .post('/goal') // '/goals' -> '/goal'로 수정
       .send({
         title: '', // Title is required, this should fail
         startDate: '2024-01-01',
@@ -140,7 +142,7 @@ describe('POST /goals', () => {
     mockCreateGoal.mockRejectedValue(new Error('Something went wrong'));
 
     const response = await request(app)
-      .post('/goals')
+      .post('/goal') // '/goals' -> '/goal'로 수정
       .send({
         title: '팀 달리기 챌린지',
         startDate: '2024-01-01',
