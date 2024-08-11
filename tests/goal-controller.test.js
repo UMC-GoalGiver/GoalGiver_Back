@@ -70,11 +70,32 @@ describe('POST /goals/:goalInstanceId/validate/photo', () => {
     );
   });
 
+  it('should return 409 if the request is already validated', async () => {
+    uploadPhotoAndValidate.mockRejectedValue(
+      new Error('이미 인증된 요청입니다.')
+    );
+
+    const response = await request(app)
+      .post('/goals/5/validate/photo')
+      .attach('photo', Buffer.from('fake image content'), {
+        filename: 'test.jpg',
+        contentType: 'image/jpeg',
+      });
+
+    expect(response.status).toBe(StatusCodes.CONFLICT);
+    expect(response.body).toHaveProperty('message', '이미 인증된 요청입니다.');
+
+    expect(uploadPhotoAndValidate).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({ id: 1 })
+    );
+  });
+
   it('should return 500 on unexpected errors', async () => {
     uploadPhotoAndValidate.mockRejectedValue(new Error('Unexpected error'));
 
     const response = await request(app)
-      .post('/goals/5/validate/photo')
+      .post('/goals/6/validate/photo')
       .attach('photo', Buffer.from('fake image content'), {
         filename: 'test.jpg',
         contentType: 'image/jpeg',
