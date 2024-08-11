@@ -1,4 +1,3 @@
-// ./tests/mypage-controller.test.js
 // 작성자: Minjae Han
 
 const request = require('supertest');
@@ -24,10 +23,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', mypageRouter);
+app.use('/mypage', mypageRouter); // 경로를 '/mypage'로 설정
 
-describe('GET /profile', () => {
-  // '/mypage' -> '/profile'로 수정
+describe('GET /mypage/profile', () => {
   it('should return user profile with badges', async () => {
     const mockProfile = {
       userId: 1,
@@ -42,7 +40,7 @@ describe('GET /profile', () => {
     mockGetUserProfile.mockResolvedValue(mockProfile);
 
     const response = await request(app)
-      .get('/profile') // '/mypage' -> '/profile'로 수정
+      .get('/mypage/profile') // '/profile' 경로로 요청
       .set('Authorization', 'Bearer fake-jwt-token');
 
     expect(response.status).toBe(StatusCodes.OK);
@@ -53,7 +51,7 @@ describe('GET /profile', () => {
     mockGetUserProfile.mockRejectedValue(new Error('Something went wrong'));
 
     const response = await request(app)
-      .get('/profile') // '/mypage' -> '/profile'로 수정
+      .get('/mypage/profile') // '/profile' 경로로 요청
       .set('Authorization', 'Bearer fake-jwt-token');
 
     expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -61,7 +59,7 @@ describe('GET /profile', () => {
   });
 });
 
-describe('GET /donations', () => {
+describe('GET /mypage/donations', () => {
   it('should return user donation history', async () => {
     const mockDonations = [
       { date: '2024-05-23', amount: 20000, organization: '유니세프' },
@@ -71,7 +69,7 @@ describe('GET /donations', () => {
     mockGetUserDonations.mockResolvedValue(mockDonations);
 
     const response = await request(app)
-      .get('/donations')
+      .get('/mypage/donations') // '/donations' 경로로 요청
       .set('Authorization', 'Bearer fake-jwt-token');
 
     expect(response.status).toBe(StatusCodes.OK);
@@ -82,7 +80,7 @@ describe('GET /donations', () => {
     mockGetUserDonations.mockRejectedValue(new Error('Something went wrong'));
 
     const response = await request(app)
-      .get('/donations')
+      .get('/mypage/donations') // '/donations' 경로로 요청
       .set('Authorization', 'Bearer fake-jwt-token');
 
     expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
