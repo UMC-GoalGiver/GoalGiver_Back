@@ -1,8 +1,12 @@
 const express = require('express');
-const { saveTokenController } = require('../controllers/token-controller');
+const tokenController = require('../controllers/token-controller');
 
 const tokenRouter = express.Router();
 
-tokenRouter.post('/save-token', saveTokenController);
+/**
+ * @route POST /save-token
+ * @description 사용자의 FCM 토큰을 저장합니다.
+ */
+tokenRouter.post('/save-token', tokenController.saveTokenController);
 
 module.exports = tokenRouter;

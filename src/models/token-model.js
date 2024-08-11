@@ -1,6 +1,13 @@
 const pool = require('../../config/database');
 
-// FCM 토큰 저장 함수
+/**
+ * @function saveToken
+ * @description 사용자 FCM 토큰을 저장하거나 업데이트
+ * @param {number} userId - 사용자 ID
+ * @param {string} token - FCM 토큰
+ * @returns {Promise<void>}
+ * @throws {Error} 데이터베이스 쿼리 실패 시 예외 발생
+ */
 exports.saveToken = async (userId, token) => {
   // 먼저 해당 사용자의 기존 토큰이 있는지 확인합니다.
   const [existingTokens] = await pool.query(

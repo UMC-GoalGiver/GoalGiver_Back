@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const tokenRouter = require('./routes/token-route');
 
 dotenv.config();
 
@@ -24,6 +25,8 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use('/token', tokenRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
