@@ -10,8 +10,8 @@ const goalRouter = express.Router();
 
 goalRouter.get('/week', getWeeklyGoals);
 
-goalRouter.get('/goals', getUserGoals); // 작성자: Minjae Han
+goalRouter.get('/', getUserGoals); // 작성자: Minjae Han
 
-goalRouter.post('/goals', createGoal); // 작성자: Minjae Han
+goalRouter.post('/', createGoal); // 작성자: Minjae Han
 
 module.exports = goalRouter;
