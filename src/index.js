@@ -5,9 +5,10 @@ const morgan = require('morgan');
 
 dotenv.config();
 const goalRouter = require('./routes/goal-route');
+const mypageRouter = require('./routes/mypage-route'); // 작성자: Minjae Han
 
 const app = express();
-app.set('port', process.env.PORT);
+app.set('port', process.env.PORT || 3000);
 
 if (process.env.NODE_ENV === 'production') {
   app.enable('trust proxy');
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/goal', goalRouter);
+app.use('/mypage', mypageRouter); // 작성자: Minjae Han
 
 app.use('/', (req, res) => {
   res.send('아무것도 없슴');
@@ -39,5 +41,5 @@ app.use((req, res, next) => {
 });
 
 app.listen(app.get('port'), () => {
-  console.log('http://localhost:3000/');
+  console.log(`Server is running on http://localhost:${app.get('port')}/`);
 });
