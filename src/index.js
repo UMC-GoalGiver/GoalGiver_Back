@@ -27,11 +27,11 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// 강제로 사용자 ID 설정
-app.use((req, res, next) => {
-  req.user = { id: 1 }; // 더미 데이터베이스에 있는 사용자 ID로 설정
-  next();
-});
+// // 테스트 용도 입니다. 강제로 사용자 ID 설정
+// app.use((req, res, next) => {
+//   req.user = { id: 1 }; // 더미 데이터베이스에 있는 사용자 ID로 설정
+//   next();
+// });
 
 app.use('/goal', goalRouter);
 app.use('/mypage', mypageRouter); // 작성자: Minjae Han
