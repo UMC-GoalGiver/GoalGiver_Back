@@ -19,6 +19,12 @@ module.exports = [
         process: 'readonly',
         // 추가된 전역 변수
         console: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        jest: 'readonly',
+        beforeEach: 'readonly',
+        Buffer: 'readonly',
       },
     },
     rules: {
