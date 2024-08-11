@@ -14,21 +14,23 @@ const {
  * @returns {Promise<boolean>} 모든 팀원이 수락했는지 여부
  */
 exports.acceptTeamValidation = async (instanceId, userId) => {
-  if (await isValidationComplete(instanceId)) {
+  if (await isValidationComplete(instanceId, userId)) {
     throw new Error('이미 완료된 인증입니다.');
   }
-  // 인증 수락 상태 업데이트
+
   await updateTeamValidation(instanceId, userId);
 
   const allAccepted = await areAllTeamMembersAccepted(instanceId);
+
   if (allAccepted) {
     await markGoalValidationAsCompleted(instanceId);
 
     try {
       await deleteNotification(instanceId);
-      console.log(`Notification for instanceId ${instanceId} deleted.`);
     } catch (err) {
-      console.error(err);
+      console.error(
+        `Error deleting notification for instanceId ${instanceId}: ${err.message}`
+      ); // 에러 로그
     }
   }
 

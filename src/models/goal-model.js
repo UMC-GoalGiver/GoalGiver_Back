@@ -10,8 +10,13 @@ const pool = require('../../config/database');
 exports.isValidationComplete = async (instanceId, userId) => {
   const query =
     'select is_accepted from team_validation where validation_id = (select id from goal_validation where goal_instance_id = ?) and user_id = ?';
-  const [rows] = await pool.execute(query, [instanceId, userId]);
-  return rows.length > 0 && rows[0].is_accepted;
+  try {
+    const [rows] = await pool.execute(query, [instanceId, userId]);
+    console.log(rows.length);
+    return rows.length > 0 && rows[0].is_accepted;
+  } catch (err) {
+    console.error(err);
+  }
 };
 /**
  * @function updateTeamValidation
