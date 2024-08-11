@@ -1,6 +1,6 @@
 // 작성자: Minjae Han
 
-const { pool } = require('../../config/database');
+const pool = require('../../config/database');
 
 exports.getUserProfile = async (userId) => {
   const [user] = await pool.query(
