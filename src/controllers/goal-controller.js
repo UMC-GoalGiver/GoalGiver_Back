@@ -22,8 +22,12 @@ exports.acceptValidation = async (req, res) => {
       res.status(StatusCodes.OK).json({ message: '인증을 수락하였습니다.' });
     }
   } catch (err) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: '인증 처리 중 오류 발생', error: err.message });
+    if (err.message === '이미 완료된 인증입니다.') {
+      res.status(StatusCodes.CONFLICT).json({ message: err.message });
+    } else {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: '인증 처리 중 오류 발생', error: err.message });
+    }
   }
 };

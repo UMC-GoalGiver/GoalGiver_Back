@@ -21,7 +21,6 @@ exports.acceptTeamValidation = async (instanceId, userId) => {
   await updateTeamValidation(instanceId, userId);
 
   const allAccepted = await areAllTeamMembersAccepted(instanceId);
-  console.log(allAccepted);
   if (allAccepted) {
     await markGoalValidationAsCompleted(instanceId);
 

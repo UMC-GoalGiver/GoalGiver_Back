@@ -1,5 +1,12 @@
 const pool = require('../../config/database');
 
+/**
+ * @function isValidationComplete
+ * @description 특정 목표 인스턴스의 인증이 완료되었는지 확인합니다.
+ * @param {number} instanceId - 목표 인스턴스 ID
+ * @param {number} userId - 목표 인스턴스 ID
+ * @returns {Promise<boolean>} 인증 완료 여부
+ */
 exports.isValidationComplete = async (instanceId, userId) => {
   const query =
     'select is_accepted from team_validation where validation_id = (select id from goal_validation where goal_instance_id = ?) and user_id = ?';
