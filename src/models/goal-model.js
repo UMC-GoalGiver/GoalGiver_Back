@@ -20,6 +20,14 @@ exports.getGoalByInstanceId = async (instanceId) => {
   return rows[0];
 };
 
+exports.isValidationComplete = async (instanceId) => {
+  const query =
+    'select 1 from goal_validation where goal_instance_id = ? and validated_at is not null';
+  const [rows] = await pool.execute(query, [instanceId]);
+
+  return rows.length > 0;
+};
+
 /**
  * @function insertGoalValidation
  * @description 새로운 목표 인증 레코드를 삽입합니다.
@@ -33,10 +41,11 @@ exports.insertGoalValidation = async (
   goalId,
   instance_id,
   latitude,
-  longitude
+  longitude,
+  validatedAt
 ) => {
   await pool.query(
-    'insert into goal_validation (goal_id, goal_instance_id, validation_data) values (?, ?, ?)',
-    [goalId, instance_id, JSON.stringify({ latitude, longitude })]
+    'insert into goal_validation (goal_id, goal_instance_id, validated_at, validation_data) values (?, ?, ?, ?)',
+    [goalId, instance_id, validatedAt, JSON.stringify({ latitude, longitude })]
   );
 };

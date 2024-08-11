@@ -1,4 +1,5 @@
 const { calculateLocation } = require('../services/goal-service');
+const { StatusCodes } = require('http-status-codes');
 
 /**
  * @function validateLocation
@@ -10,15 +11,28 @@ exports.validateLocation = async (req, res) => {
   try {
     const { instanceId } = req.params;
     const { latitude, longitude } = req.body;
+
     const result = await calculateLocation(instanceId, latitude, longitude);
+
     if (result) {
-      res.status(200).json({ message: '위치 인증 성공' });
+      res.status(StatusCodes.OK).json({ message: '위치 인증 성공' });
     } else {
-      res.status(400).json({ message: '위치 인증 실패' });
+      res.status(StatusCodes.BAD_REQUEST).json({ message: '위치 인증 실패' });
     }
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: '위치 인증 중 오류 발생', error: err.message });
+    if (err.message.includes('목표가 없습니다')) {
+      res.status(StatusCodes.NOT_FOUND).json({
+        message: '해당 목표를 찾을 수 없습니다.',
+      });
+    } else if (err.message.includes('이미 완료된 인증입니다')) {
+      res.status(StatusCodes.CONFLICT).json({
+        message: '이미 완료된 인증입니다.',
+      });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: '위치 인증 중 오류 발생',
+        error: err.message,
+      });
+    }
   }
 };
