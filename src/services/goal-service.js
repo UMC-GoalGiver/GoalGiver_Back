@@ -1,6 +1,7 @@
 const {
   getGoalByInstanceId,
   insertGoalValidation,
+  isValidationComplete,
 } = require('../models/goal-model');
 
 /**
@@ -21,6 +22,9 @@ exports.calculateLocation = async (
   if (!goal) {
     throw new Error('목표가 없습니다');
   }
+  if (await isValidationComplete(instanceId)) {
+    throw new Error('이미 완료된 인증입니다.');
+  }
 
   const savedLatitude = goal.latitude;
   const savedLongitude = goal.longitude;
@@ -34,12 +38,27 @@ exports.calculateLocation = async (
 
   const allowedDistance = 50; // 오차 범위 - 50미터
   if (distance <= allowedDistance) {
+    // Helper function to format date as 'YYYY-MM-DD HH:MM:SS'
+    function formatDateToSQLDatetime(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    const currentTime = formatDateToSQLDatetime(new Date());
+
     await insertGoalValidation(
       goal.id,
       instanceId,
       currentLatitude,
-      currentLongitude
+      currentLongitude,
+      currentTime
     );
+
     return true;
   }
   return false;
