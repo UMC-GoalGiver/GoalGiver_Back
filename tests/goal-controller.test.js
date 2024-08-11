@@ -16,11 +16,45 @@ jest.mock('../src/services/goal-service', () => ({
 const { getGoals } = require('../src/services/goal-service');
 
 describe('GET /goals/week', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should return 400 if week_start or week_end is missing', async () => {
     const response = await request(app).get('/goals/week');
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       error: 'week_start 또는 week_end가 없습니다.',
+    });
+  });
+
+  it('should return 400 if week_start or week_end is not a valid date', async () => {
+    const response = await request(app)
+      .get('/goals/week')
+      .query({ week_start: 'invalid-date', week_end: '2024-07-27' });
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      error: '유효한 날짜 형식이 아닙니다.',
+    });
+  });
+
+  it('should return 400 if start date is after end date', async () => {
+    const response = await request(app)
+      .get('/goals/week')
+      .query({ week_start: '2024-07-28', week_end: '2024-07-27' });
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      error: '시작 날짜는 종료 날짜보다 이전이어야 합니다.',
+    });
+  });
+
+  it('should return 400 if the date range exceeds 7 days', async () => {
+    const response = await request(app)
+      .get('/goals/week')
+      .query({ week_start: '2024-07-21', week_end: '2024-07-29' });
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      error: '기간은 최대 7일 이내여야 합니다.',
     });
   });
 

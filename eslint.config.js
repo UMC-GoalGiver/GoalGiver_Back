@@ -23,6 +23,7 @@ module.exports = [
         it: 'readonly',
         expect: 'readonly',
         jest: 'readonly',
+        beforeEach: 'readonly',
       },
     },
     rules: {
