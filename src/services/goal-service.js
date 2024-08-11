@@ -2,6 +2,8 @@ const {
   updateTeamValidation,
   areAllTeamMembersAccepted,
   markGoalValidationAsCompleted,
+  deleteNotification,
+  isValidationComplete,
 } = require('../models/goal-model');
 
 /**
@@ -12,6 +14,9 @@ const {
  * @returns {Promise<boolean>} 모든 팀원이 수락했는지 여부
  */
 exports.acceptTeamValidation = async (instanceId, userId) => {
+  if (await isValidationComplete(instanceId)) {
+    throw new Error('이미 완료된 인증입니다.');
+  }
   // 인증 수락 상태 업데이트
   await updateTeamValidation(instanceId, userId);
 
@@ -19,6 +24,13 @@ exports.acceptTeamValidation = async (instanceId, userId) => {
   console.log(allAccepted);
   if (allAccepted) {
     await markGoalValidationAsCompleted(instanceId);
+
+    try {
+      await deleteNotification(instanceId);
+      console.log(`Notification for instanceId ${instanceId} deleted.`);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return allAccepted;

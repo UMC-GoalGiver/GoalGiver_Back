@@ -1,4 +1,5 @@
 const { acceptTeamValidation } = require('../services/goal-service');
+const { StatusCodes } = require('http-status-codes');
 
 /**
  * @function acceptValidation
@@ -14,13 +15,15 @@ exports.acceptValidation = async (req, res) => {
     const allAccepted = await acceptTeamValidation(instanceId, userId);
 
     if (allAccepted) {
-      res.status(200).json({ message: '모든 팀원이 인증을 수락하였습니다.' });
+      res
+        .status(StatusCodes.OK)
+        .json({ message: '모든 팀원이 인증을 수락하였습니다.' });
     } else {
-      res.status(200).json({ message: '인증을 수락하였습니다.' });
+      res.status(StatusCodes.OK).json({ message: '인증을 수락하였습니다.' });
     }
   } catch (err) {
     res
-      .status(500)
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: '인증 처리 중 오류 발생', error: err.message });
   }
 };
