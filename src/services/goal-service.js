@@ -25,16 +25,16 @@ exports.uploadPhotoAndValidate = async (req, user) => {
     // res.locals.user에서 가져온 사용자 ID
     throw new Error('접근 권한이 없습니다. (아이디 불일치)');
   }
-  if (goalInstance.type === 'personal') {
-    await saveValidationResult(goalInstance.id, instanceId, photoUrl);
-    return photoUrl;
-  } else if (goalInstance.type === 'team') {
-    await saveValidationResult(goalInstance.id, instanceId, photoUrl);
-
-    await initializeTeamValidation(instanceId, user.id);
-    await notifyTeamMembers(instanceId, user, photoUrl);
-    return photoUrl;
-  } else {
+  if (goalInstance.type !== 'personal' && goalInstance.type !== 'team') {
     throw new Error('유효한 목표 타입이 아닙니다.');
   }
+
+  await saveValidationResult(goalInstance.id, instanceId, photoUrl);
+
+  if (goalInstance.type === 'team') {
+    await initializeTeamValidation(instanceId, user.id);
+    await notifyTeamMembers(instanceId, user, photoUrl);
+  }
+
+  return photoUrl;
 };
