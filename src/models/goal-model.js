@@ -27,7 +27,7 @@ exports.getGoalByInstanceId = async (instanceId) => {
  */
 exports.saveValidationResult = async (goalId, instanceId, photoUrl) => {
   const query =
-    'insert into goal_validation (goal_id, goal_instance_id, validation_data) values(?, ?, ?)';
+    'insert into goal_validation (goal_id, goal_instance_id, validated_at, validation_data) values(?, ?, now(), ?)';
   await pool.execute(query, [goalId, instanceId, photoUrl]);
 };
 
@@ -103,10 +103,10 @@ exports.initializeTeamValidation = async (instanceId, requesterId) => {
  * @param {string} photoUrl - 인증 사진 URL
  * @returns {Promise<boolean>} 중복 여부
  */
-exports.checkForExistingValidation = async (instanceId, photoUrl) => {
+exports.checkForExistingValidation = async (instanceId) => {
   const query =
-    'SELECT COUNT(*) as count FROM goal_validation WHERE goal_instance_id = ? AND validation_data = ?';
-  const [rows] = await pool.execute(query, [instanceId, photoUrl]);
+    'SELECT COUNT(*) as count FROM goal_validation WHERE goal_instance_id = ? AND validated_at IS NOT NULL';
+  const [rows] = await pool.execute(query, [instanceId]);
 
   return rows[0].count > 0; // 중복이 있으면 true, 없으면 false
 };

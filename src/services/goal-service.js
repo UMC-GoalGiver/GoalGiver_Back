@@ -10,11 +10,10 @@ const {
  * @function uploadPhotoAndValidate
  * @description 사진을 S3에 업로드하고 목표 인증을 처리합니다.
  * @param {Object} req - Express 요청 객체
- * @param {Object} user - 인증된 사용자 정보
  * @returns {Promise<string>} 업로드된 사진 URL
  * @throws {Error} 권한 에러 또는 인증 타입 에러
  */
-exports.uploadPhotoAndValidate = async (req, user) => {
+exports.uploadPhotoAndValidate = async (req) => {
   const photoUrl = req.file.location;
   const instanceId = req.params.goalInstanceId;
 
@@ -22,8 +21,7 @@ exports.uploadPhotoAndValidate = async (req, user) => {
   if (!goalInstance) {
     throw new Error('목표 정보를 찾을 수 없습니다.');
   }
-  if (user.id !== goalInstance.user_id) {
-    // res.locals.user에서 가져온 사용자 ID
+  if (req.user.id !== goalInstance.user_id) {
     throw new Error('접근 권한이 없습니다. (아이디 불일치)');
   }
   if (goalInstance.validation_type !== 'photo') {
@@ -31,10 +29,7 @@ exports.uploadPhotoAndValidate = async (req, user) => {
   }
 
   // 중복 데이터 검사
-  const existingValidation = await checkForExistingValidation(
-    instanceId,
-    photoUrl
-  );
+  const existingValidation = await checkForExistingValidation(instanceId);
   if (existingValidation) {
     throw new Error('이미 인증된 요청입니다.');
   }
