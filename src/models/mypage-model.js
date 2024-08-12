@@ -1,11 +1,9 @@
-// 작성자: Minjae Han
-
 const pool = require('../../config/database');
 
 exports.getUserProfile = async (userId) => {
   const [user] = await pool.query(
     `
-    SELECT id AS userId, nickname, level, profile_photo AS profilePhoto, points, donation_points AS donationPoints
+    SELECT id AS userId, nickname, level, profile_image AS profilePhoto, points, donation_points AS donationPoints
     FROM Users
     WHERE id = ?
   `,
