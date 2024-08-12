@@ -10,7 +10,7 @@ const { StatusCodes } = require('http-status-codes');
 exports.acceptValidation = async (req, res) => {
   try {
     const { instanceId } = req.params;
-    const userId = res.locals.user.id;
+    const userId = req.user.id;
 
     const allAccepted = await acceptTeamValidation(instanceId, userId);
 
