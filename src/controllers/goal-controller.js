@@ -20,8 +20,13 @@ const isValidDate = (dateString) => {
  */
 exports.getWeeklyGoals = async (req, res, next) => {
   const { week_start, week_end } = req.query;
-  const userId = res.locals.user.id;
+  const userId = req.user?.id;
 
+  if (!userId) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ error: 'userId가 올바르지 않습니다.' });
+  }
   // 쿼리 파라미터가 없는 경우 처리
   if (!week_start || !week_end) {
     return res
