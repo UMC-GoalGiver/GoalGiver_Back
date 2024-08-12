@@ -14,7 +14,7 @@ const { StatusCodes } = require('http-status-codes');
  */
 exports.validatePhoto = async (req, res) => {
   try {
-    const result = await uploadPhotoAndValidate(req, res.locals.user);
+    const result = await uploadPhotoAndValidate(req);
     res.status(StatusCodes.OK).json({ message: '인증 성공', data: result });
   } catch (error) {
     if (error.message.includes('접근 권한이 없습니다')) {
@@ -48,7 +48,7 @@ exports.requestTeamValidation = async (req, res) => {
   try {
     const result = await requestTeamValidationService(
       req.params.goalInstanceId,
-      res.locals.user
+      req.user
     );
     res.status(StatusCodes.OK).json({
       message: '인증 요청이 성공적으로 전송되었습니다.',
