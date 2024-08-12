@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/goal', goalRouter); // 라우터 설정을 '/goal'로 변경
+app.use('/goal', goalRouter);
 
 describe('GET /goal', () => {
   it('should return user goals', async () => {
@@ -44,7 +44,7 @@ describe('GET /goal', () => {
     });
 
     const response = await request(app)
-      .get('/goal') // '/goals' -> '/goal'로 수정
+      .get('/goal')
       .set('Authorization', 'Bearer fake-jwt-token');
 
     expect(response.status).toBe(StatusCodes.OK);
@@ -58,7 +58,7 @@ describe('GET /goal', () => {
     mockGetUserGoals.mockRejectedValue(new Error('Something went wrong'));
 
     const response = await request(app)
-      .get('/goal') // '/goals' -> '/goal'로 수정
+      .get('/goal')
       .set('Authorization', 'Bearer fake-jwt-token');
 
     expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -85,7 +85,7 @@ describe('POST /goal', () => {
     mockCreateGoal.mockResolvedValue(mockGoal);
 
     const response = await request(app)
-      .post('/goal') // '/goals' -> '/goal'로 수정
+      .post('/goal')
       .send(mockGoal)
       .set('Authorization', 'Bearer fake-jwt-token');
 
@@ -93,12 +93,12 @@ describe('POST /goal', () => {
     expect(response.body).toEqual(expect.objectContaining(mockGoal));
   });
 
-  it('should create a team goal with members', async () => {
+  it('should create a team goal with members and repeat instances', async () => {
     const mockGoal = {
       id: 2,
       title: '팀 달리기 챌린지',
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
+      startDate: '2024-08-10',
+      endDate: '2024-08-30',
       type: 'team',
       validationType: 'team',
       teamMemberIds: [2, 3, 4],
@@ -109,22 +109,38 @@ describe('POST /goal', () => {
       daysOfWeek: ['mon', 'wed', 'fri'],
     };
 
-    mockCreateGoal.mockResolvedValue(mockGoal);
+    const mockCreatedGoal = {
+      ...mockGoal,
+      id: 2,
+      instances: [
+        { date: '2024-08-12' },
+        { date: '2024-08-14' },
+        { date: '2024-08-16' },
+        { date: '2024-08-19' },
+        { date: '2024-08-21' },
+        { date: '2024-08-23' },
+        { date: '2024-08-26' },
+        { date: '2024-08-28' },
+        { date: '2024-08-30' },
+      ],
+    };
+
+    mockCreateGoal.mockResolvedValue(mockCreatedGoal);
 
     const response = await request(app)
-      .post('/goal') // '/goals' -> '/goal'로 수정
+      .post('/goal')
       .send(mockGoal)
       .set('Authorization', 'Bearer fake-jwt-token');
 
     expect(response.status).toBe(StatusCodes.CREATED);
-    expect(response.body).toEqual(expect.objectContaining(mockGoal));
+    expect(response.body).toEqual(expect.objectContaining(mockCreatedGoal));
   });
 
   it('should return an error if required fields are missing', async () => {
     const response = await request(app)
-      .post('/goal') // '/goals' -> '/goal'로 수정
+      .post('/goal')
       .send({
-        title: '', // Title is required, this should fail
+        title: '',
         startDate: '2024-01-01',
         endDate: '2024-12-31',
         type: 'personal',
@@ -142,7 +158,7 @@ describe('POST /goal', () => {
     mockCreateGoal.mockRejectedValue(new Error('Something went wrong'));
 
     const response = await request(app)
-      .post('/goal') // '/goals' -> '/goal'로 수정
+      .post('/goal')
       .send({
         title: '팀 달리기 챌린지',
         startDate: '2024-01-01',
