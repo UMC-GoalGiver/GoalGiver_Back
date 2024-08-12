@@ -55,7 +55,11 @@ exports.requestTeamValidation = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    if (error.message.includes('접근 권한이 없습니다')) {
+    if (error.message.includes('중복된 알림이 이미 존재합니다.')) {
+      res.status(StatusCodes.CONFLICT).json({
+        message: '이미 같은 알림이 존재합니다.',
+      });
+    } else if (error.message.includes('접근 권한이 없습니다')) {
       res.status(StatusCodes.FORBIDDEN).json({
         message: '접근 권한이 없습니다. (아이디 불일치)',
       });
