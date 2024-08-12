@@ -1,3 +1,4 @@
+// tests/goal-controller.test.js
 const request = require('supertest');
 const express = require('express');
 const goalRouter = require('../src/routes/goal-route');
@@ -17,7 +18,7 @@ const { getGoals } = require('../src/services/goal-service');
 
 describe('GET /goals/week', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks(); // 각 테스트 전 모의 함수 초기화
   });
 
   it('should return 400 if week_start or week_end is missing', async () => {
