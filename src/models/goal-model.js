@@ -38,7 +38,7 @@ exports.saveValidationResult = async (goalId, instanceId, photoUrl) => {
  * @param {Object} user - 요청한 사용자 정보
  * @param {string} photoUrl - 인증 사진 URL
  */
-exports.notifyTeamMembers = async (instanceId, user, photoUrl) => {
+exports.notifyTeamMembers = async (instanceId, user) => {
   const query =
     'SELECT user_id FROM team_members WHERE team_goal_id = (SELECT goal_id FROM goal_instances WHERE id = ?)';
   const [members] = await pool.query(query, [instanceId]);
@@ -51,19 +51,17 @@ exports.notifyTeamMembers = async (instanceId, user, photoUrl) => {
     if (member.user_id !== user.id) {
       const content = JSON.stringify({
         message: `${requesterName}님께서 '${goal.title}' 인증을 요청을 보냈습니다.`,
-        photoUrl: photoUrl,
         goal: {
           goal_id: goal.id,
           instance_id: goal.instance_id,
           title: goal.title,
         },
       });
-      console.log('Notification Content:', content); // 디버깅용 로그
+
       try {
         const query =
           'INSERT INTO notifications (user_id, content) VALUES (?, ?)';
         await pool.query(query, [member.user_id, content]);
-        console.log(`Notification inserted for user ${member.user_id}`); // 성공 로그
       } catch (error) {
         console.error('Error inserting notification:', error); // 에러 로그
       }
