@@ -26,8 +26,8 @@ exports.uploadPhotoAndValidate = async (req, user) => {
     // res.locals.user에서 가져온 사용자 ID
     throw new Error('접근 권한이 없습니다. (아이디 불일치)');
   }
-  if (goalInstance.type !== 'personal' && goalInstance.type !== 'team') {
-    throw new Error('유효한 목표 타입이 아닙니다.');
+  if (goalInstance.validation_type !== 'photo') {
+    throw new Error('사진 인증 타입이 아닙니다.');
   }
 
   // 중복 데이터 검사
@@ -41,10 +41,23 @@ exports.uploadPhotoAndValidate = async (req, user) => {
 
   await saveValidationResult(goalInstance.id, instanceId, photoUrl);
 
-  if (goalInstance.type === 'team') {
-    await initializeTeamValidation(instanceId, user.id);
-    await notifyTeamMembers(instanceId, user, photoUrl);
-  }
-
   return photoUrl;
+};
+
+exports.requestTeamValidationService = async (instanceId, user) => {
+  const goalInstance = await getGoalByInstanceId(instanceId);
+  if (!goalInstance) {
+    throw new Error('목표 정보를 찾을 수 없습니다.');
+  }
+  if (user.id !== goalInstance.user_id) {
+    throw new Error('접근 권한이 없습니다. (아이디 불일치)');
+  }
+  if (goalInstance.type !== 'team') {
+    throw new Error('유효한 목표 타입이 아닙니다.');
+  }
+  // 팀원 인증 초기화
+  await initializeTeamValidation(instanceId, user.id);
+
+  // 팀원들에게 알림 전송
+  await notifyTeamMembers(instanceId, user);
 };
