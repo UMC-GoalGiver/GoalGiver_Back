@@ -36,7 +36,6 @@ exports.saveValidationResult = async (goalId, instanceId, photoUrl) => {
  * @description 팀 목표 인증 요청을 팀원들에게 알립니다.
  * @param {number} instanceId - 목표 인스턴스 ID
  * @param {Object} user - 요청한 사용자 정보
- * @param {string} photoUrl - 인증 사진 URL
  */
 exports.notifyTeamMembers = async (instanceId, user) => {
   const query =
@@ -108,7 +107,6 @@ exports.initializeTeamValidation = async (instanceId, requesterId) => {
  * @function checkForExistingValidation
  * @description 중복 인증 데이터를 확인합니다.
  * @param {number} instanceId - 목표 인스턴스 ID
- * @param {string} photoUrl - 인증 사진 URL
  * @returns {Promise<boolean>} 중복 여부
  */
 exports.checkForExistingValidation = async (instanceId) => {
