@@ -136,6 +136,52 @@ describe('POST /goal', () => {
     expect(response.body).toEqual(expect.objectContaining(mockCreatedGoal));
   });
 
+  it('should create a team goal with monthly repeat instances', async () => {
+    const mockGoal = {
+      id: 3,
+      title: '팀 월간 회의',
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
+      type: 'team',
+      validationType: 'team',
+      teamMemberIds: [2, 3, 4],
+      timeAttack: false,
+      startTime: '09:00:00',
+      endTime: '10:00:00',
+      repeatType: 'monthly',
+      dayOfMonth: 15, // 매달 15일에 반복
+    };
+
+    const mockCreatedGoal = {
+      ...mockGoal,
+      id: 3,
+      instances: [
+        { date: '2024-01-15' },
+        { date: '2024-02-15' },
+        { date: '2024-03-15' },
+        { date: '2024-04-15' },
+        { date: '2024-05-15' },
+        { date: '2024-06-15' },
+        { date: '2024-07-15' },
+        { date: '2024-08-15' },
+        { date: '2024-09-15' },
+        { date: '2024-10-15' },
+        { date: '2024-11-15' },
+        { date: '2024-12-15' },
+      ],
+    };
+
+    mockCreateGoal.mockResolvedValue(mockCreatedGoal);
+
+    const response = await request(app)
+      .post('/goal')
+      .send(mockGoal)
+      .set('Authorization', 'Bearer fake-jwt-token');
+
+    expect(response.status).toBe(StatusCodes.CREATED);
+    expect(response.body).toEqual(expect.objectContaining(mockCreatedGoal));
+  });
+
   it('should return an error if required fields are missing', async () => {
     const response = await request(app)
       .post('/goal')
