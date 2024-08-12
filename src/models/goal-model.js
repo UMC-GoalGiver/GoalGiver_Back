@@ -42,10 +42,9 @@ exports.notifyTeamMembers = async (instanceId, user) => {
   const query =
     'SELECT user_id FROM team_members WHERE team_goal_id = (SELECT goal_id FROM goal_instances WHERE id = ?)';
   const [members] = await pool.query(query, [instanceId]);
-  console.log('Members:', members); // 디버깅용 로그
 
   const goal = await this.getGoalByInstanceId(instanceId);
-  const requesterName = user.nickname; // res.locals.user에서 가져온 사용자 정보
+  const requesterName = user.nickname;
 
   for (const member of members) {
     if (member.user_id !== user.id) {
@@ -57,7 +56,16 @@ exports.notifyTeamMembers = async (instanceId, user) => {
           title: goal.title,
         },
       });
+      const checkQuery = `SELECT COUNT(*) AS count FROM notifications WHERE user_id = ?
+                              AND JSON_EXTRACT(content, '$.goal.instance_id') = CAST(? AS JSON)`;
+      const [existingNotifications] = await pool.execute(checkQuery, [
+        member.user_id,
+        instanceId,
+      ]);
 
+      if (existingNotifications[0].count > 0) {
+        throw new Error('중복된 알림이 이미 존재합니다.');
+      }
       try {
         const query =
           'INSERT INTO notifications (user_id, content) VALUES (?, ?)';
