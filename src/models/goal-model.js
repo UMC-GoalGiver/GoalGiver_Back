@@ -36,6 +36,52 @@ exports.getUserGoals = async (userId) => {
 
 // 작성자: Minjae Han
 
+// 반복 데이터를 바탕으로 목표 인스턴스를 생성하는 함수
+async function createGoalInstances(goalId, startDate, endDate, repeatData) {
+  const instances = [];
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  if (repeatData.repeatType === 'daily') {
+    for (
+      let date = new Date(start);
+      date <= end;
+      date.setDate(date.getDate() + (repeatData.intervalOfDays || 1))
+    ) {
+      instances.push([goalId, date.toISOString().split('T')[0]]);
+    }
+  } else if (repeatData.repeatType === 'weekly') {
+    const daysOfWeek = repeatData.daysOfWeek || [];
+    for (
+      let date = new Date(start);
+      date <= end;
+      date.setDate(date.getDate() + 1)
+    ) {
+      if (
+        daysOfWeek.includes(
+          date.toLocaleString('en', { weekday: 'short' }).toLowerCase()
+        )
+      ) {
+        instances.push([goalId, date.toISOString().split('T')[0]]);
+      }
+    }
+  } else if (repeatData.repeatType === 'monthly') {
+    for (
+      let date = new Date(start);
+      date <= end;
+      date.setMonth(date.getMonth() + (repeatData.intervalOfDays || 1))
+    ) {
+      instances.push([goalId, date.toISOString().split('T')[0]]);
+    }
+  }
+
+  if (instances.length > 0) {
+    const query = 'INSERT INTO Goal_Instances (goal_id, date) VALUES ?';
+    await pool.query(query, [instances]);
+  }
+}
+
+// 기존의 createPersonalGoal 및 createTeamGoal 함수 수정
 exports.createPersonalGoal = async (goalData) => {
   const query = `
     INSERT INTO Goals (user_id, title, description, start_date, end_date, type, validation_type, latitude, longitude, emoji, donation_organization_id, donation_amount)
@@ -58,6 +104,16 @@ exports.createPersonalGoal = async (goalData) => {
   ];
 
   const [result] = await pool.execute(query, values);
+
+  if (goalData.repeatType) {
+    await createGoalInstances(
+      result.insertId,
+      goalData.startDate,
+      goalData.endDate,
+      goalData
+    );
+  }
+
   return { id: result.insertId, ...goalData };
 };
 
@@ -66,7 +122,6 @@ exports.createTeamGoal = async (goalData) => {
   try {
     await connection.beginTransaction();
 
-    // Goals 테이블에 기본 목표 정보 삽입
     const [goalResult] = await connection.execute(
       `
       INSERT INTO Goals (user_id, title, description, start_date, end_date, type, validation_type, latitude, longitude, emoji, donation_organization_id, donation_amount)
@@ -90,7 +145,6 @@ exports.createTeamGoal = async (goalData) => {
 
     const goalId = goalResult.insertId;
 
-    // Team_Goals 테이블에 추가 정보 삽입
     const [teamGoalResult] = await connection.execute(
       `
       INSERT INTO Team_Goals (goal_id, time_attack, start_time, end_time)
@@ -99,7 +153,6 @@ exports.createTeamGoal = async (goalData) => {
       [goalId, goalData.timeAttack, goalData.startTime, goalData.endTime]
     );
 
-    // Team_Members 테이블에 팀원 정보 삽입
     for (const memberId of goalData.teamMemberIds) {
       await connection.execute(
         `
@@ -107,6 +160,15 @@ exports.createTeamGoal = async (goalData) => {
         VALUES (?, ?)
       `,
         [teamGoalResult.insertId, memberId]
+      );
+    }
+
+    if (goalData.repeatType) {
+      await createGoalInstances(
+        goalId,
+        goalData.startDate,
+        goalData.endDate,
+        goalData
       );
     }
 
