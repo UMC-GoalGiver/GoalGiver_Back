@@ -8,7 +8,7 @@ const { StatusCodes } = require('http-status-codes');
  * @param {Object} res - Express 응답 객체
  */
 exports.saveTokenController = async (req, res) => {
-  const userId = res.locals.user.id;
+  const userId = req.user.id;
   const { token } = req.body;
 
   try {
