@@ -1,14 +1,16 @@
-const validationService = require('../services/validation-location-team-sevice.js');
+// 위치 인증내역, 팀원인증 내역(goalsuccess)
+const { StatusCodes } = require('http-status-codes');
+const validationService = require('../services/validation-location-team-service');
 
 const getValidationLocationTeam = async (req, res) => {
   const goalId = parseInt(req.params.goal_id, 10);
   const userId = parseInt(req.query.user_id, 10);
   try {
     const goal = await validationService.getValidationLocationTeam(goalId, userId);
-    res.status(200).json(goal);
+    res.status(StatusCodes.OK).json(goal);
   } catch (error) {
-    console.error('Error in getGoalWithProgress:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error('Error in getValidationLocationTeam:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
   }
 };
 
