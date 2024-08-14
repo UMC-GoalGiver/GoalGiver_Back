@@ -1,4 +1,5 @@
 // 사진 인증 내역 조회
+const { StatusCodes } = require('http-status-codes');
 const validationService = require('../services/validation-photo-service');
 
 const getValidationPhoto = async (req, res) => {
@@ -6,13 +7,14 @@ const getValidationPhoto = async (req, res) => {
   const userId = parseInt(req.query.user_id, 10);
   try {
     const goal = await validationService.getValidationPhoto(goalId, userId);
-    res.status(200).json(goal);
+    res.status(StatusCodes.OK).json(goal);
   } catch (error) {
-    console.error('Error in getGoalWithProgress:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error('Error in getValidationPhoto:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
   }
 };
 
 module.exports = {
   getValidationPhoto,
 };
+
