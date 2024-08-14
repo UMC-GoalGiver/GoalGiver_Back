@@ -7,9 +7,9 @@ dotenv.config();
 const db = require('../config/database.js');
 
 //라우터 선언
-const weeklyGoalRoutes = require('./routes/weekly-goal-routes');
-const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
-const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
+//const weeklyGoalRoutes = require('./routes/weekly-goal-routes');
+//const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
+//const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
 const locationAndTeamValidationRoutes = require('./routes/validation-location-team-routes.js');
 
 const app = express();
@@ -36,9 +36,9 @@ app.get('/', (req, res) => {
 });
 
 //라우터
-app.use('/goals', weeklyGoalRoutes);
-app.use('/goals', monthlyGoalRoutes);
-app.use('/goals', yearlyGoalRoutes);
+//app.use('/goals', weeklyGoalRoutes);
+//app.use('/goals', monthlyGoalRoutes);
+//app.use('/goals', yearlyGoalRoutes);
 app.use('/goals', locationAndTeamValidationRoutes);
 
 
