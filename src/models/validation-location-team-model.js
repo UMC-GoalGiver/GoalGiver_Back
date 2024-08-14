@@ -31,7 +31,6 @@ const findvalidationById = async (goalId, userId) => {
 
     const goal = goalResult[0];
     let validationQuery;
-    const nowISOString = now.toISOString();
 
     // Progress percent 계산
     if (goal.type === 'personal') {
@@ -99,7 +98,8 @@ const findvalidationById = async (goalId, userId) => {
       throw new Error('Invalid validation type');
     }
 
-    const [validationResult] = await db.query(validationQuery, [goalId, nowISOString, new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()]);
+    // 인증 내역 조회 시 기간을 목표 시작 날짜부터 종료 날짜까지로 설정
+    const [validationResult] = await db.query(validationQuery, [goalId, goal.start_date, goal.end_date]);
 
     // D-Day 계산
     const endDate = new Date(goal.end_date);
@@ -114,9 +114,6 @@ const findvalidationById = async (goalId, userId) => {
       const kstDate = new Date(new Date(entry.date).getTime() + KST_OFFSET);
       return { ...entry, date: kstDate.toISOString() };
     });
-
-
-
 
     return goal;
   } catch (error) {
