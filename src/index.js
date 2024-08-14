@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const authRoutes = require('./routes/auth-routes');
+const friendRoutes = require('./routes/friend-routes');
 
 dotenv.config();
 
@@ -24,6 +26,11 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+//로그인 라우터
+app.use('/api', authRoutes);
+//친구목록 라우터
+app.use('/api', friendRoutes);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
