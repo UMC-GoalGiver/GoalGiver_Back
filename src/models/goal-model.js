@@ -1,8 +1,12 @@
 const pool = require('../../config/database');
 
+// 날짜 범위에 따른 목표 조회 함수
 exports.getGoalsByDateRange = async (week_start, week_end) => {
-  const query =
-    'select g.id as goal_id, gi.id as goal_instance_id, title, description, start_date, end_date, type, status, latitude, longitude,  validation_type, emoji, donation_organization_id, donation_amount, gi.date from goals g, goalinstances gi where g.id = gi.goal_id and start_date >= ? and end_date <= ?';
+  const query = `
+    SELECT g.id as goal_id, gi.id as goal_instance_id, title, description, start_date, end_date, type, status, latitude, longitude, validation_type, emoji, donation_organization_id, donation_amount, gi.date 
+    FROM goals g 
+    JOIN goal_instances gi ON g.id = gi.goal_id 
+    WHERE gi.date >= ? AND gi.date <= ?`;
 
   try {
     const [rows] = await pool.execute(query, [week_start, week_end]);
@@ -13,8 +17,7 @@ exports.getGoalsByDateRange = async (week_start, week_end) => {
   }
 };
 
-// 작성자: Minjae Han
-
+// 사용자 목표 조회 함수
 exports.getUserGoals = async (userId) => {
   const query = `
     SELECT g.id, g.title, g.description, g.start_date, g.end_date, g.type, g.status,
@@ -25,7 +28,6 @@ exports.getUserGoals = async (userId) => {
   `;
 
   try {
-    // SQL 인젝션 방지를 위해 prepared statements 사용
     const [rows] = await pool.execute(query, [userId]);
     return rows;
   } catch (err) {
@@ -34,8 +36,61 @@ exports.getUserGoals = async (userId) => {
   }
 };
 
-// 작성자: Minjae Han
+// 반복 데이터를 바탕으로 목표 인스턴스를 생성하는 함수
+async function createGoalInstances(goalId, startDate, endDate, repeatData) {
+  try {
+    const instances = [];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
+    if (repeatData.repeatType === 'daily') {
+      for (
+        let date = new Date(start);
+        date <= end;
+        date.setDate(date.getDate() + (repeatData.intervalOfDays || 1))
+      ) {
+        instances.push([goalId, date.toISOString().split('T')[0]]);
+      }
+    } else if (repeatData.repeatType === 'weekly') {
+      const daysOfWeek = repeatData.daysOfWeek || [];
+      for (
+        let date = new Date(start);
+        date <= end;
+        date.setDate(date.getDate() + 1)
+      ) {
+        if (
+          daysOfWeek.includes(
+            date.toLocaleString('en', { weekday: 'short' }).toLowerCase()
+          )
+        ) {
+          instances.push([goalId, date.toISOString().split('T')[0]]);
+        }
+      }
+    } else if (repeatData.repeatType === 'monthly') {
+      for (
+        let date = new Date(start);
+        date <= end;
+        date.setMonth(date.getMonth() + 1)
+      ) {
+        date.setDate(repeatData.dayOfMonth || date.getDate());
+        instances.push([goalId, date.toISOString().split('T')[0]]);
+      }
+    }
+
+    if (instances.length > 0) {
+      const query = 'INSERT INTO Goal_Instances (goal_id, date) VALUES ?';
+      await pool.query(query, [instances]);
+    }
+  } catch (error) {
+    if (error.code === 'ER_LOCK_WAIT_TIMEOUT') {
+      console.error('Lock wait timeout occurred. Retrying transaction...');
+      return await createGoalInstances(goalId, startDate, endDate, repeatData);
+    }
+    throw error;
+  }
+}
+
+// 개인 목표 생성 함수
 exports.createPersonalGoal = async (goalData) => {
   const query = `
     INSERT INTO Goals (user_id, title, description, start_date, end_date, type, validation_type, latitude, longitude, emoji, donation_organization_id, donation_amount)
@@ -58,15 +113,26 @@ exports.createPersonalGoal = async (goalData) => {
   ];
 
   const [result] = await pool.execute(query, values);
+
+  if (goalData.repeatType) {
+    await createGoalInstances(
+      result.insertId,
+      goalData.startDate,
+      goalData.endDate,
+      goalData
+    );
+  }
+
   return { id: result.insertId, ...goalData };
 };
 
+// 팀 목표 생성 함수
 exports.createTeamGoal = async (goalData) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
 
-    // Goals 테이블에 기본 목표 정보 삽입
+    // Goals 테이블에 목표 정보 삽입
     const [goalResult] = await connection.execute(
       `
       INSERT INTO Goals (user_id, title, description, start_date, end_date, type, validation_type, latitude, longitude, emoji, donation_organization_id, donation_amount)
@@ -111,6 +177,17 @@ exports.createTeamGoal = async (goalData) => {
     }
 
     await connection.commit();
+
+    // 트랜잭션 외부에서 인스턴스 생성
+    if (goalData.repeatType) {
+      await createGoalInstances(
+        goalId,
+        goalData.startDate,
+        goalData.endDate,
+        goalData
+      );
+    }
+
     return { id: goalId, ...goalData };
   } catch (err) {
     await connection.rollback();
@@ -121,6 +198,7 @@ exports.createTeamGoal = async (goalData) => {
   }
 };
 
+// 목표 반복 생성 함수
 exports.createGoalRepeat = async (goalId, repeatData) => {
   const query = `
     INSERT INTO Goal_Repeats (goal_id, repeat_type, days_of_week, day_of_month, interval_of_days)
