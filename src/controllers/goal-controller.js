@@ -78,9 +78,6 @@ exports.requestTeamValidation = async (req, res) => {
   }
 };
 
-}; // 여기에 중괄호 추가
-
-
 /**
  * @function isValidDate
  * @description 주어진 문자열이 유효한 날짜인지 확인합니다.
