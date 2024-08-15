@@ -23,6 +23,7 @@ module.exports = [
         describe: 'readonly',
         it: 'readonly',
         expect: 'readonly',
+        beforeEach: 'readonly',
         jest: 'readonly', // 추가된 부분
       },
     },
