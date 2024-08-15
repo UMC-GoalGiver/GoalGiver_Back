@@ -1,4 +1,3 @@
-
 const {
   getGoalByInstanceId,
   saveValidationResult,
@@ -56,6 +55,7 @@ exports.requestTeamValidationService = async (instanceId, user) => {
 
   // 팀원들에게 알림 전송
   await notifyTeamMembers(instanceId, user);
+};
 // ./src/services/goal-service.js
 const { getGoalsByDateRange } = require('../models/goal-model');
 
