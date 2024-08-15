@@ -4,11 +4,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const goalRouter = require('./routes/goal-route');
 
-const goalRouter = require('./routes/goal-route');
 const { setTestUser } = require('./middlewares/set-test-user');
 
 dotenv.config();
-const { setTestUser } = require('./middlewares/set-test-user');
 const mypageRouter = require('./routes/mypage-route'); // 작성자: Minjae Han
 
 const app = express();

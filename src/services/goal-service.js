@@ -3,7 +3,6 @@ const {
   areAllTeamMembersAccepted,
   markGoalValidationAsCompleted,
   deleteNotification,
-  isValidationComplete,
 } = require('../models/goal-model');
 
 /**

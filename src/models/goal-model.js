@@ -75,7 +75,8 @@ exports.deleteNotification = async (instanceId) => {
     console.error('Error deleting notification:', error); // 에러 로그
     throw error;
   }
-
+};
+/**
  * @function getGoalByInstanceId
  * @description 인스턴스 ID로 목표 정보를 조회합니다.
  * @param {number} instanceId - 조회할 목표 인스턴스 ID
