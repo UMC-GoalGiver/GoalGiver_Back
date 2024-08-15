@@ -1,3 +1,4 @@
+
 // tests/goal-controller.test.js
 
 const request = require('supertest');
@@ -11,9 +12,13 @@ const {
   createGoal: mockCreateGoal,
   getGoals,
 } = require('../src/services/goal-service');
+
 const { setTestUser } = require('../src/middlewares/set-test-user');
 
 jest.mock('../src/services/goal-service');
+
+
+const { acceptTeamValidation } = require('../src/services/goal-service');
 
 const app = express();
 app.use(express.json());
@@ -25,6 +30,59 @@ describe('Goal Controller Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks(); // 각 테스트 전 모의 함수 초기화
   });
+});
+describe('POST /goals/:goalInstanceId/validate/accept', () => {
+  
+  it('should return 200 and message when all team members accept', async () => {
+    acceptTeamValidation.mockResolvedValue(true);
+
+    const response = await request(app).post('/goals/1/validate/accept');
+
+    expect(response.status).toBe(StatusCodes.OK);
+    expect(response.body).toEqual({
+      message: '모든 팀원이 인증을 수락하였습니다.',
+    });
+
+    expect(acceptTeamValidation).toHaveBeenCalledWith('1', 1); // instanceId를 문자열로 기대
+  });
+
+  it('should return 200 and message when not all team members have accepted', async () => {
+    acceptTeamValidation.mockResolvedValue(false);
+
+    const response = await request(app).post('/goals/2/validate/accept');
+
+    expect(response.status).toBe(StatusCodes.OK);
+    expect(response.body).toEqual({
+      message: '인증을 수락하였습니다.',
+    });
+
+    expect(acceptTeamValidation).toHaveBeenCalledWith('2', 1); // instanceId를 문자열로 기대
+  });
+
+  it('should return 409 if validation is already complete', async () => {
+    acceptTeamValidation.mockRejectedValue(
+      new Error('이미 완료된 인증입니다.')
+    );
+
+    const response = await request(app).post('/goals/3/validate/accept');
+
+    expect(response.status).toBe(StatusCodes.CONFLICT);
+    expect(response.body).toHaveProperty('message', '이미 완료된 인증입니다.');
+
+    expect(acceptTeamValidation).toHaveBeenCalledWith('3', 1); // instanceId를 문자열로 기대
+  });
+
+  it('should return 500 on unexpected errors', async () => {
+    acceptTeamValidation.mockRejectedValue(new Error('Unexpected error'));
+
+    const response = await request(app).post('/goals/4/validate/accept');
+
+    expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(response.body).toHaveProperty('message', '인증 처리 중 오류 발생');
+
+    expect(acceptTeamValidation).toHaveBeenCalledWith('4', 1); // instanceId를 문자열로 기대
+  });
+});
 
   describe('POST /goals/:goalInstanceId/validate/photo', () => {
     it('should return 200 and success message when photo validation is successful', async () => {
@@ -519,5 +577,6 @@ describe('POST /goals/:goalInstanceId/validate/location', () => {
 
     expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(response.body).toHaveProperty('message', '위치 인증 중 오류 발생');
+
   });
 });

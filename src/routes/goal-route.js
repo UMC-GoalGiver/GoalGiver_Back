@@ -9,11 +9,20 @@ const {
   validatePhoto,
   requestTeamValidation,
   validateLocation,
+  acceptValidation,
 } = require('../controllers/goal-controller'); // 작성자: Minjae Han
 
 const goalRouter = express.Router();
 
 /**
+ * @route POST /:instanceId/validate/accept
+ * @description 목표 인스턴스에 대한 인증 수락을 처리
+ */
+goalRouter.post(
+  '/:instanceId/validate/accept',
+  acceptValidation
+);
+
  * @route GET /goals/week
  * @description 주간 목표를 조회합니다.
  * @queryParam {string} week_start - 조회 시작 날짜 (YYYY-MM-DD)
