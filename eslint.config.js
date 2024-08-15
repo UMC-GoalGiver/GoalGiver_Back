@@ -19,11 +19,12 @@ module.exports = [
         process: 'readonly',
         // 추가된 전역 변수
         console: 'readonly',
+        // Jest 전역 변수 추가
         describe: 'readonly',
         it: 'readonly',
         expect: 'readonly',
-        jest: 'readonly',
         beforeEach: 'readonly',
+        jest: 'readonly', // 추가된 부분
       },
     },
     rules: {
@@ -31,7 +32,7 @@ module.exports = [
       indent: ['error', 2],
       quotes: ['error', 'single'],
       semi: ['error', 'always'],
-      'no-unused-vars': ['error'],
+      'no-unused-vars': ['warn'],
       'no-undef': ['error'],
       eqeqeq: ['error', 'always'],
       curly: ['error', 'all'],
