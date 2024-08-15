@@ -115,7 +115,7 @@ exports.checkForExistingValidation = async (instanceId) => {
   const [rows] = await pool.execute(query, [instanceId]);
 
   return rows[0].count > 0; // 중복이 있으면 true, 없으면 false
-
+};
 /**
  * @function getGoalsByDateRange
  * @description 특정 날짜 범위 내의 목표 인스턴스를 조회합니다.
@@ -132,7 +132,6 @@ exports.getGoalsByDateRange = async (userId, week_start, week_end) => {
     JOIN goal_instances gi ON g.id = gi.goal_id
     WHERE g.user_id = ? AND gi.date >= ? AND gi.date <= ?
   `;
-
 
   try {
     const [rows] = await pool.execute(query, [userId, week_start, week_end]);
