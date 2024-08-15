@@ -30,7 +30,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(setTestUser);
 
-app.use('/goal', goalRouter);
+app.use('/goals', goalRouter);
+
 app.use('/mypage', mypageRouter); // 작성자: Minjae Han
 
 app.use('/', (req, res) => {
