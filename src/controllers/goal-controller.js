@@ -1,6 +1,4 @@
-
 // src/controllers/goal-controller.js
-
 
 const {
   uploadPhotoAndValidate,
@@ -9,7 +7,6 @@ const {
 
 const { getGoals } = require('../services/goal-service');
 const { StatusCodes } = require('http-status-codes');
-
 
 /**
  * @function validatePhoto
@@ -78,6 +75,8 @@ exports.requestTeamValidation = async (req, res) => {
         error: error.message,
       });
     }
+  }
+}; // 여기에 중괄호 추가
 
 /**
  * @function isValidDate
