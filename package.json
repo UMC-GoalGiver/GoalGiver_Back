@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./src/index",
+    "start": "nodemon --exec babel-node ./src/index",
     "prepare": "husky install",
     "test": "jest"
   },
