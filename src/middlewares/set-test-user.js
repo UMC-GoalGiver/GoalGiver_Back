@@ -3,10 +3,10 @@ exports.setTestUser = (req, res, next) => {
 
   if (process.env.NODE_ENV !== 'production') {
     req.user = {
-    id: 1,
-    nickname: 'testuser',
-    role: 'user',
-  };
+      id: 1,
+      nickname: 'testuser',
+      role: 'user',
+    };
   }
   next();
 };
