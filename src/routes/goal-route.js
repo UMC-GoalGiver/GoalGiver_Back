@@ -30,7 +30,7 @@ goalRouter.post(
   goalController.requestTeamValidation
 );
 
-
+/**
  * @route GET /goals/week
  * @description 주간 목표를 조회합니다.
  * @queryParam {string} week_start - 조회 시작 날짜 (YYYY-MM-DD)
