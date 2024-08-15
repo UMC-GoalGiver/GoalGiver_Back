@@ -2,10 +2,10 @@ const express = require('express');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const goalRouter = require('./routes/goal-route');
 
 dotenv.config();
 const { setTestUser } = require('./middlewares/set-test-user');
-const goalRouter = require('./routes/goal-route');
 const mypageRouter = require('./routes/mypage-route'); // 작성자: Minjae Han
 
 const app = express();
