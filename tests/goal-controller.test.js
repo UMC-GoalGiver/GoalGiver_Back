@@ -2,7 +2,10 @@
 
 const request = require('supertest');
 const express = require('express');
+const notificationRouter = require('../src/routes/notification-route');
+
 const goalRouter = require('../src/routes/goal-route');
+
 const { StatusCodes } = require('http-status-codes');
 const {
   uploadPhotoAndValidate,

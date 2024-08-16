@@ -6,6 +6,8 @@ const goalRouter = require('./routes/goal-route');
 
 const { setTestUser } = require('./middlewares/set-test-user');
 
+const notificationRouter = require('./routes/notification-route');
+
 dotenv.config();
 const mypageRouter = require('./routes/mypage-route'); // 작성자: Minjae Han
 
@@ -28,6 +30,9 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+
+app.use('/notification', notificationRouter);
 
 app.use(setTestUser);
 
