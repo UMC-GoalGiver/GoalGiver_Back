@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
-const notificationRouter = require('./routes/goal-route');
+const notificationRouter = require('./routes/notification-route');
 
 dotenv.config();
 

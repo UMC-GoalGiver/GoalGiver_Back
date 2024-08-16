@@ -1,3 +1,5 @@
+//notification-controller.js
+
 const { sendNotification } = require('../services/notification-service');
 const { StatusCodes } = require('http-status-codes');
 /**

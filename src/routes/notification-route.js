@@ -1,3 +1,4 @@
+// notification-route.js
 const express = require('express');
 const notificationController = require('../controllers/notification-controller');
 
