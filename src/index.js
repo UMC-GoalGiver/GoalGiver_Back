@@ -44,7 +44,7 @@ app.use('/notification', notificationRouter);
 app.use('/token', tokenRouter);
 
 app.use('/', (req, res) => {
-  res.send('아무것도 없슴');
+  res.send('This is nothing u can do anything.');
 });
 
 app.use((req, res, next) => {
