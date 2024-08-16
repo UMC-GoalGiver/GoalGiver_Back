@@ -31,14 +31,13 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-
-app.use('/notification', notificationRouter);
-
 app.use(setTestUser);
 
 app.use('/goals', goalRouter);
 
 app.use('/mypage', mypageRouter); // 작성자: Minjae Han
+
+app.use('/notification', notificationRouter);
 
 app.use('/', (req, res) => {
   res.send('아무것도 없슴');
