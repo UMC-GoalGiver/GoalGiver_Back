@@ -1,7 +1,7 @@
 const db = require('../../config/database.js');
 
 // 목표 ID와 사용자 ID로 목표와 진행 상황을 조회
-const findvalidationById = async (goalId, userId) => {
+const findValidationById = async (goalId, userId) => {
   const goalQuery = `
     SELECT
       g.id as goal_id, 
@@ -87,4 +87,4 @@ const findvalidationById = async (goalId, userId) => {
   }
 };
 
-module.exports = { findvalidationById };
+module.exports = { findValidationById };

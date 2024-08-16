@@ -6,7 +6,7 @@ const getValidationPhoto = async (goalId, userId) => {
   if (!goalId || !userId) {
     throw new Error('Goal ID and User ID are required');
   }
-  const goal = await validationModel.findvalidationById(goalId, userId);
+  const goal = await validationModel.findValidationById(goalId, userId);
   if (!goal) {
     throw new Error('Goal not found');
   }
