@@ -18,15 +18,7 @@ const pool = mysql.createPool({
 
 module.exports = pool;
 
-const mysql = require('mysql2/promise');
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  database: process.env.DB_NAME, // Ensure this is correctly set
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
 
 pool.getConnection()
   .then(conn => {
