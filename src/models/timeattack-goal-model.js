@@ -93,6 +93,7 @@ const findTeamGoalTimeAttackById = async (goalId, userId) => {
       }))
     };
 
+    
     goal.team_progress = teamProgress;
 
     // 날짜를 한국 시간 기준으로 변환
