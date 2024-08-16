@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const tokenRouter = require('./routes/token-route');
+
 const goalRouter = require('./routes/goal-route');
 
 const { setTestUser } = require('./middlewares/set-test-user');
@@ -38,6 +40,8 @@ app.use('/goals', goalRouter);
 app.use('/mypage', mypageRouter); // 작성자: Minjae Han
 
 app.use('/notification', notificationRouter);
+
+app.use('/token', tokenRouter);
 
 app.use('/', (req, res) => {
   res.send('아무것도 없슴');

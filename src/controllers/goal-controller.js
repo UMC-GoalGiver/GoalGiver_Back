@@ -1,4 +1,3 @@
-
 const { acceptTeamValidation } = require('../services/goal-service');
 const { StatusCodes } = require('http-status-codes');
 
