@@ -69,6 +69,7 @@ const findTeamGoalTimeAttackById = async (goalId, userId) => {
     goal.start_date = new Date(new Date(goal.start_date).getTime() + KST_OFFSET).toISOString();
     goal.end_date = new Date(new Date(goal.end_date).getTime() + KST_OFFSET).toISOString();
 
+    
     return goal;
   } catch (error) {
     console.error('Error fetching goal with progress:', error);
