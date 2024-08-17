@@ -2,16 +2,22 @@ const express = require('express');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const tokenRouter = require('./routes/token-route');
+//const tokenRouter = require('./routes/token-route');
 
-const goalRouter = require('./routes/goal-route');
+//const goalRouter = require('./routes/goal-route');
 
-const { setTestUser } = require('./middlewares/set-test-user');
+//const { setTestUser } = require('./middlewares/set-test-user');
 
-const notificationRouter = require('./routes/notification-route');
+//const notificationRouter = require('./routes/notification-route');
 
 dotenv.config();
-const mypageRouter = require('./routes/mypage-route'); // 작성자: Minjae Han
+//const mypageRouter = require('./routes/mypage-route'); // 작성자: Minjae Han
+
+//준구리 부분
+//const weeklyGoalRoutes = require('./routes/weekly-goal-routes');
+//const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
+//const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
+const validationLocationAndTeamRoutes = require('./routes/validation-location-team-routes.js');
 
 const app = express();
 app.set('port', process.env.PORT || 3000);
@@ -33,15 +39,21 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(setTestUser);
+//app.use(setTestUser);
 
-app.use('/goals', goalRouter);
+//app.use('/goals', goalRouter);
 
-app.use('/mypage', mypageRouter); // 작성자: Minjae Han
+//app.use('/mypage', mypageRouter); // 작성자: Minjae Han
 
-app.use('/notification', notificationRouter);
+//app.use('/notification', notificationRouter);
 
-app.use('/token', tokenRouter);
+//app.use('/token', tokenRouter);
+
+//준구리 부분
+//app.use('/goals', weeklyGoalRoutes);
+//app.use('/goals', monthlyGoalRoutes);
+//app.use('/goals', yearlyGoalRoutes);
+app.use('/goals', validationLocationAndTeamRoutes);
 
 app.use('/', (req, res) => {
   res.send('아무것도 없슴');
