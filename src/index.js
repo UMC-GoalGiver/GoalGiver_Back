@@ -14,9 +14,6 @@ dotenv.config();
 //const mypageRouter = require('./routes/mypage-route'); // 작성자: Minjae Han
 
 //준구리 부분
-//const weeklyGoalRoutes = require('./routes/weekly-goal-routes');
-//const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
-//const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
 const validationLocationAndTeamRoutes = require('./routes/validation-location-team-routes.js');
 
 const app = express();
@@ -50,10 +47,7 @@ app.use(express.urlencoded({ extended: false }));
 //app.use('/token', tokenRouter);
 
 //준구리 부분
-//app.use('/goals', weeklyGoalRoutes);
-//app.use('/goals', monthlyGoalRoutes);
-//app.use('/goals', yearlyGoalRoutes);
-app.use('/goals', validationLocationAndTeamRoutes);
+app.use('/goals/location-team/list', validationLocationAndTeamRoutes); //위치인증, 팀원인증 인증내역 라우터
 
 app.use('/', (req, res) => {
   res.send('아무것도 없슴');
