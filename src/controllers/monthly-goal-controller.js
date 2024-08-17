@@ -1,3 +1,4 @@
+const { StatusCodes } = require('http-status-codes');
 const goalService = require('../services/monthly-goal-service.js');
 
 // 목표 월간 진행 상황 조회
@@ -7,16 +8,18 @@ const getMonthlyProgress = async (req, res) => {
 
   try {
     if (!goalId || !userId) {
-      throw new Error('Goal ID and User ID are required');
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Goal ID and User ID are required' });
     }
+
     const goal = await goalService.getGoalMonthlyProgress(goalId, userId);
-    res.json(goal);
-  } catch (error) {
-    if (error.message === 'Goal not found') {
-      res.status(404).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Server Error' });
+    if (!goal) {
+      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Goal not found' });
     }
+
+    res.status(StatusCodes.OK).json(goal);
+  } catch (error) {
+    console.error('Error in getMonthlyProgress:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Server Error' });
   }
 };
 

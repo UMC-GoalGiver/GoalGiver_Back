@@ -49,9 +49,10 @@ app.use(express.urlencoded({ extended: false }));
 //app.use('/token', tokenRouter);
 
 //준구리 부분
-app.use('/goals', weeklyGoalRoutes);
-app.use('/goals', monthlyGoalRoutes);
-app.use('/goals', yearlyGoalRoutes);
+app.use('/goals/week', weeklyGoalRoutes);
+app.use('/goals/month', monthlyGoalRoutes);
+app.use('/goals/year', yearlyGoalRoutes);
+
 
 app.use('/', (req, res) => {
   res.send('아무것도 없슴');
