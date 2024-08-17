@@ -13,6 +13,7 @@ const morgan = require('morgan');
 dotenv.config();
 //const mypageRouter = require('./routes/mypage-route'); // 작성자: Minjae Han
 
+//준구리 부분
 const weeklyGoalRoutes = require('./routes/weekly-goal-routes');
 const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
 const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
@@ -47,6 +48,7 @@ app.use(express.urlencoded({ extended: false }));
 
 //app.use('/token', tokenRouter);
 
+//준구리 부분
 app.use('/goals', weeklyGoalRoutes);
 app.use('/goals', monthlyGoalRoutes);
 app.use('/goals', yearlyGoalRoutes);
