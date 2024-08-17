@@ -1,7 +1,7 @@
 const db = require('../../config/database.js');
 
 // 목표 ID와 사용자 ID로 목표와 진행 상황을 조회
-const findvalidationById = async (goalId, userId) => {
+const findValidationById = async (goalId, userId) => {
   const goalQuery = `
     SELECT
       g.id as goal_id, 
@@ -34,17 +34,15 @@ const findvalidationById = async (goalId, userId) => {
 
     // Progress percent 계산
     if (goal.type === 'personal') {
-      const [totalValidationResult] = await db.query(
-        'SELECT COUNT(*) AS validated_instances FROM Goal_Validation WHERE goal_id = ?',
-        [goalId]
-      );
-      const [totalInstancesResult] = await db.query(
-        'SELECT COUNT(*) AS total_instances FROM Goal_Instances WHERE goal_id = ?',
-        [goalId]
-      );
+      // 검증된 인스턴스 수와 총 인스턴스 수를 동시에 조회
+const [progressResult] = await db.query(`
+  SELECT 
+    (SELECT COUNT(*) FROM Goal_Validation WHERE goal_id = ?) AS validated_instances,
+    (SELECT COUNT(*) FROM Goal_Instances WHERE goal_id = ?) AS total_instances
+`, [goalId, goalId]);
 
-      const totalInstances = totalInstancesResult[0].total_instances;
-      const validatedInstances = totalValidationResult[0].validated_instances;
+const validatedInstances = progressResult[0].validated_instances;
+const totalInstances = progressResult[0].total_instances;
       const progressPercent = totalInstances > 0 ? (validatedInstances / totalInstances) * 100 : 0;
 
       goal.progress_percent = Math.round(progressPercent);
@@ -122,4 +120,4 @@ const findvalidationById = async (goalId, userId) => {
   }
 };
 
-module.exports = { findvalidationById };
+module.exports = { findValidationById };
