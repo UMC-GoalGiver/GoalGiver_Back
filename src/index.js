@@ -19,6 +19,7 @@ const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
 const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
 const validationLocationAndTeamRoutes = require('./routes/validation-location-team-routes.js');
 const teamGoalTimeAttackRoutes = require('./routes/timeattack-goal-routes.js');
+const teamGoalTimeAttackValidationRoutes = require('./routes/timeattack-validation-routes.js');
 
 const app = express();
 app.set('port', process.env.PORT || 3000);
@@ -56,6 +57,7 @@ app.use('/goals/month', monthlyGoalRoutes); //월간 진행상황 라우터
 app.use('/goals/year', yearlyGoalRoutes); //연간 진행상황 라우터
 app.use('/goals/location-team/list', validationLocationAndTeamRoutes); //위치인증, 팀원인증 인증내역 라우터
 app.use('/goals/timeattack/progress', teamGoalTimeAttackRoutes); //팀목표 진행상황 라우터
+app.use('/goals/timeattack/list', teamGoalTimeAttackValidationRoutes); //팀목표 인증내역 라우터
 
 app.use('/', (req, res) => {
   res.send('아무것도 없슴');
