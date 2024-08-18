@@ -124,6 +124,7 @@ exports.notifyTeamMembers = async (instanceId, user) => {
   for (const member of members) {
     if (member.user_id !== user.id) {
       const content = JSON.stringify({
+        sender_id: user.id, // 알림 전송자 id 추가
         message: `${requesterName}님께서 '${goal.title}' 인증을 요청을 보냈습니다.`,
         goal: {
           goal_id: goal.id,
@@ -173,8 +174,8 @@ exports.initializeTeamValidation = async (instanceId, requesterId) => {
   for (const member of members) {
     if (member.user_id !== requesterId) {
       const query =
-        'INSERT INTO team_validation (validation_id, user_id) VALUES ((SELECT id FROM goal_validation WHERE goal_instance_id = ?), ?)';
-      await pool.query(query, [instanceId, member.user_id]);
+        'INSERT INTO team_validation (validation_id, user_id, sender_id) VALUES ((SELECT id FROM goal_validation WHERE goal_instance_id = ?), ?, ?)';
+      await pool.query(query, [instanceId, member.user_id, requesterId]); // sender_id 값도 삽입하게끔 쿼리문 변경
     }
   }
 };
