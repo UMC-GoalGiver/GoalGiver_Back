@@ -13,6 +13,11 @@ const notificationRouter = require('./routes/notification-route');
 dotenv.config();
 const mypageRouter = require('./routes/mypage-route'); // 작성자: Minjae Han
 
+//준구리 부분
+const weeklyGoalRoutes = require('./routes/weekly-goal-routes');
+const monthlyGoalRoutes = require('./routes/monthly-goal-routes.js');
+const yearlyGoalRoutes = require('./routes/yearly-goal-routes.js');
+
 const app = express();
 app.set('port', process.env.PORT || 3000);
 
@@ -42,6 +47,12 @@ app.use('/mypage', mypageRouter); // 작성자: Minjae Han
 app.use('/notification', notificationRouter);
 
 app.use('/token', tokenRouter);
+
+//준구리 부분
+app.use('/goals/week', weeklyGoalRoutes);
+app.use('/goals/month', monthlyGoalRoutes);
+app.use('/goals/year', yearlyGoalRoutes);
+
 
 app.use('/', (req, res) => {
   res.send('아무것도 없슴');
