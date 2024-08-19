@@ -7,12 +7,13 @@ const {
   rejectFriendRequest,
   showFriends,
 } = require('../services/friend-service');
+const { StatusCodes } = require('http-status-codes');
 
 // 카카오톡 친구 목록 가져오기
 exports.getFriends = async (req, res, next) => {
   try {
     const friends = await getFriends(req.user.kakaoToken);
-    res.status(200).json(friends);
+    res.status(StatusCodes.OK).json(friends);
   } catch (error) {
     next(error);
   }
@@ -23,7 +24,7 @@ exports.sendMessageToFriend = async (req, res, next) => {
   try {
     const { friendId, message } = req.body;
     await sendMessageToFriend(req.user.kakaoToken, friendId, message);
-    res.status(200).json({ message: '메시지 전송 성공' });
+    res.status(StatusCodes.OK).json({ message: '메시지 전송 성공' });
   } catch (error) {
     next(error);
   }
@@ -33,7 +34,7 @@ exports.sendMessageToFriend = async (req, res, next) => {
 exports.searchUser = async (req, res, next) => {
   try {
     const users = await searchUser(req.query.keyword);
-    res.status(200).json(users);
+    res.status(StatusCodes.OK).json(users);
   } catch (error) {
     next(error);
   }
@@ -43,7 +44,7 @@ exports.searchUser = async (req, res, next) => {
 exports.addFriend = async (req, res, next) => {
   try {
     const friend = await addFriend(req.user.id, req.params.id);
-    res.status(201).json(friend);
+    res.status(StatusCodes.CREATED).json(friend);
   } catch (error) {
     next(error);
   }
@@ -53,7 +54,7 @@ exports.addFriend = async (req, res, next) => {
 exports.acceptFriendRequest = async (req, res, next) => {
   try {
     await acceptFriendRequest(req.user.id, req.params.id);
-    res.status(200).json({ message: '친구 요청 수락 성공' });
+    res.status(StatusCodes.OK).json({ message: '친구 요청 수락 성공' });
   } catch (error) {
     next(error);
   }
@@ -63,7 +64,7 @@ exports.acceptFriendRequest = async (req, res, next) => {
 exports.rejectFriendRequest = async (req, res, next) => {
   try {
     await rejectFriendRequest(req.user.id, req.params.id);
-    res.status(200).json({ message: '친구 요청 거절 성공' });
+    res.status(StatusCodes.OK).json({ message: '친구 요청 거절 성공' });
   } catch (error) {
     next(error);
   }
@@ -73,7 +74,7 @@ exports.rejectFriendRequest = async (req, res, next) => {
 exports.showFriends = async (req, res, next) => {
   try {
     const friends = await showFriends(req.user.id);
-    res.status(200).json(friends);
+    res.status(StatusCodes.OK).json(friends);
   } catch (error) {
     next(error);
   }
