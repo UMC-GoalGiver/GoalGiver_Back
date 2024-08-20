@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const tokenRouter = require('./routes/token-route');
 
 const goalRouter = require('./routes/goal-route');
+const authRoutes = require('../src/routes/auth-routes.js');
+const friendRoutes = require('../src/routes/friend-routes.js');
 
 const { setTestUser } = require('./middlewares/set-test-user');
 
