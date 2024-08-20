@@ -8,18 +8,24 @@ const getTeamGoalTimeAttack = async (req, res) => {
 
   try {
     if (!goalId || !userId) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Goal ID and User ID are required' });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Goal ID and User ID are required' });
     }
 
     const goal = await goalService.getTeamGoalTimeAttack(goalId, userId);
     if (!goal) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Goal not found' });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Goal not found' });
     }
 
     res.status(StatusCodes.OK).json(goal);
   } catch (error) {
     console.error('Error in getTeamGoalTimeAttack:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Server Error' });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Server Error' });
   }
 };
 
