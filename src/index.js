@@ -44,6 +44,11 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(setTestUser);
 
+//로그인 라우터
+app.use('/api/auth', authRoutes);
+
+app.use('/api/friends', friendRoutes); //친구목록 라우터
+
 app.use('/goals', goalRouter);
 
 app.use('/mypage', mypageRouter); // 작성자: Minjae Han
