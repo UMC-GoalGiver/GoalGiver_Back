@@ -1,8 +1,8 @@
 const axios = require('axios');
 const { Op } = require('sequelize');
 const User = require('../models/user-model');
-const FriendModel = require('../models/friend-model'); // friend-model.js에 있는 함수를 사용
-const db = require('../../config/database'); // DB 연결
+const FriendRequest = require('../models/friend-request-model');
+const Friend = require('../models/friend-model'); // 기존의 Friend 모델을 사용
 
 // 상수 정의
 const KAKAO_FRIENDS_URL = 'https://kapi.kakao.com/v1/api/talk/friends';
@@ -65,30 +65,34 @@ exports.searchUser = async (keyword) => {
 
 // 앱 내 친구 신청
 exports.addFriend = async (userId, friendId) => {
-  return FriendModel.addFriendRequest(userId, friendId);
+  const friendRequest = await FriendRequest.create({ userId, friendId });
+  return friendRequest;
 };
 
 // 친구 요청 수락
 exports.acceptFriendRequest = async (userId, requestId) => {
-  const requests = await FriendModel.getFriendRequests(userId);
-  const request = requests.find(r => r.id === requestId);
-  
+  const request = await FriendRequest.findOne({
+    where: { id: requestId, friendId: userId, status: 'pending' },
+  });
+
   if (request) {
-    await FriendModel.updateFriendRequestStatus(requestId, 'accepted');
+    await Friend.create({ userId: request.userId, friendId: request.friendId });
+    await request.update({ status: 'accepted' });
   }
 };
 
 // 친구 요청 거절
 exports.rejectFriendRequest = async (userId, requestId) => {
-  const requests = await FriendModel.getFriendRequests(userId);
-  const request = requests.find(r => r.id === requestId);
+  const request = await FriendRequest.findOne({
+    where: { id: requestId, friendId: userId, status: 'pending' },
+  });
 
   if (request) {
-    await FriendModel.updateFriendRequestStatus(requestId, 'rejected');
+    await request.update({ status: 'rejected' });
   }
 };
 
 // 친구 목록 조회
 exports.showFriends = async (userId) => {
-  return FriendModel.getFriends(userId);
+  return Friend.findAll({ where: { userId } });
 };
