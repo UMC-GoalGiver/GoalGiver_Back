@@ -1,8 +1,8 @@
 const axios = require('axios');
 const { Op } = require('sequelize');
 const User = require('../models/user-model');
-const FriendRequest = require('../models/friend-request-model');
-const Friend = require('../models/friend-model');
+const FriendModel = require('../models/friend-model'); // friend-model.js에 있는 함수를 사용
+const db = require('../../config/database'); // DB 연결
 
 // 상수 정의
 const KAKAO_FRIENDS_URL = 'https://kapi.kakao.com/v1/api/talk/friends';
@@ -65,42 +65,30 @@ exports.searchUser = async (keyword) => {
 
 // 앱 내 친구 신청
 exports.addFriend = async (userId, friendId) => {
-  const friendRequest = await createFriendRequest(userId, friendId);
-  return friendRequest;
+  return FriendModel.addFriendRequest(userId, friendId);
 };
 
 // 친구 요청 수락
 exports.acceptFriendRequest = async (userId, requestId) => {
-  await findAndAcceptFriendRequest(userId, requestId);
+  const requests = await FriendModel.getFriendRequests(userId);
+  const request = requests.find(r => r.id === requestId);
+  
+  if (request) {
+    await FriendModel.updateFriendRequestStatus(requestId, 'accepted');
+  }
 };
 
 // 친구 요청 거절
 exports.rejectFriendRequest = async (userId, requestId) => {
-  const request = await FriendRequest.findOne({
-    where: { id: requestId, friendId: userId },
-  });
+  const requests = await FriendModel.getFriendRequests(userId);
+  const request = requests.find(r => r.id === requestId);
+
   if (request) {
-    await request.destroy();
+    await FriendModel.updateFriendRequestStatus(requestId, 'rejected');
   }
 };
 
 // 친구 목록 조회
 exports.showFriends = async (userId) => {
-  return Friend.findAll({ where: { userId } });
-};
-
-// 유틸리티 함수: 친구 요청 생성
-const createFriendRequest = async (userId, friendId) => {
-  return FriendRequest.create({ userId, friendId });
-};
-
-// 유틸리티 함수: 친구 요청 찾기 및 수락
-const findAndAcceptFriendRequest = async (userId, requestId) => {
-  const request = await FriendRequest.findOne({
-    where: { id: requestId, friendId: userId },
-  });
-  if (request) {
-    await Friend.create({ userId: request.userId, friendId: request.friendId });
-    await request.destroy();
-  }
+  return FriendModel.getFriends(userId);
 };
