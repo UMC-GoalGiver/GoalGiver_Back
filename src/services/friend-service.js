@@ -1,8 +1,8 @@
 const axios = require('axios');
 const { Op } = require('sequelize');
 const User = require('../models/user-model');
-const FriendRequest = require('../models/friend-request-model');
 const Friend = require('../models/friend-model');
+const FriendRequest = require('../models/friend-request-model');
 
 // 상수 정의
 const KAKAO_FRIENDS_URL = 'https://kapi.kakao.com/v1/api/talk/friends';
@@ -65,7 +65,7 @@ exports.searchUser = async (keyword) => {
 
 // 앱 내 친구 신청
 exports.addFriend = async (userId, friendId) => {
-  const friendRequest = await createFriendRequest(userId, friendId);
+  const friendRequest = await FriendRequest.addFriendRequest(userId, friendId);
   return friendRequest;
 };
 
@@ -76,11 +76,9 @@ exports.acceptFriendRequest = async (userId, requestId) => {
 
 // 친구 요청 거절
 exports.rejectFriendRequest = async (userId, requestId) => {
-  const request = await FriendRequest.findOne({
-    where: { id: requestId, friendId: userId },
-  });
+  const request = await FriendRequest.findFriendRequest(userId, requestId);
   if (request) {
-    await request.destroy();
+    await FriendRequest.deleteFriendRequest(requestId);
   }
 };
 
@@ -89,18 +87,11 @@ exports.showFriends = async (userId) => {
   return Friend.findAll({ where: { userId } });
 };
 
-// 유틸리티 함수: 친구 요청 생성
-const createFriendRequest = async (userId, friendId) => {
-  return FriendRequest.create({ userId, friendId });
-};
-
 // 유틸리티 함수: 친구 요청 찾기 및 수락
 const findAndAcceptFriendRequest = async (userId, requestId) => {
-  const request = await FriendRequest.findOne({
-    where: { id: requestId, friendId: userId },
-  });
+  const request = await FriendRequest.findFriendRequest(userId, requestId);
   if (request) {
     await Friend.create({ userId: request.userId, friendId: request.friendId });
-    await request.destroy();
+    await FriendRequest.deleteFriendRequest(requestId);
   }
 };
