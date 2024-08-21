@@ -14,7 +14,18 @@ exports.kakaoRedirect = async (req, res, next) => {
     }
     const kakaoUser = await kakaoCallback(code);
     // 로그인 성공 후 클라이언트로 유저 정보를 반환
-    res.status(StatusCodes.OK).json({ message: '회원가입 완료', user: kakaoUser });
+    res.status(StatusCodes.OK).json({ message: '회원가입 성공, 닉네임 설정 필요', user: kakaoUser });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 닉네임 등록
+exports.registerNickname = async (req, res, next) => {
+  try {
+    const { kakaoId, nickname } = req.body; // 클라이언트로부터 kakaoId와 nickname을 받아옴
+    const result = await registerNickname(kakaoId, nickname);
+    res.status(StatusCodes.OK).json(result);
   } catch (error) {
     next(error);
   }

@@ -4,6 +4,7 @@ const {
   createUser,
   updateUserTokens,
   deleteUserByKakaoId,
+  findUserByNickname,
 } = require('../models/user-model');
 require('dotenv').config();
 
@@ -43,22 +44,29 @@ const kakaoCallback = async (code) => {
     let user = await findUserByKakaoId(id);
 
     if (!user) {
-      // 유저가 존재하지 않는 경우, 기본 정보로 유저를 생성
-      user = {
+      await createUser({
         kakaoId: id,
-        email: kakao_account.email || '', // 이메일이 없을 경우 빈 문자열 설정
-        nickname: `user_${id}`, // 기본 닉네임 생성
-        profile_photo: kakao_account.profile?.profile_image_url || '', // 프로필 이미지가 없을 경우 빈 문자열 설정
-        accessToken: access_token,
+        email: kakao_account.email || '',
+        nickname: '',
+        profileImage: kakao_account.profile?.profile_image_url || '',
         refreshToken: refresh_token,
-      };
-      await createUser(user);
+      });
+      
+      user = await findUserByKakaoId(id);
     } else {
-      // 기존 유저가 존재할 경우 토큰 갱신
+      // 기존 유저의 토큰 갱신
       await updateUserTokens(id, access_token, refresh_token);
     }
 
-    return user;
+    return {
+      kakaoId: id,
+      email: kakao_account.email || '',
+      profileImage: kakao_account.profile?.profile_image_url || '',
+      accessToken: access_token,
+      refreshToken: refresh_token,
+      nickname: user.nickname,
+    };
+
   } catch (error) {
     console.error(
       '카카오 API 요청 실패:',
@@ -66,6 +74,17 @@ const kakaoCallback = async (code) => {
     );
     throw new Error('카카오 로그인 실패');
   }
+};
+
+// 닉네임 설정 및 중복 확인
+const registerNickname = async (kakaoId, nickname) => {
+  const existingUser = await findUserByNickname(nickname);
+  if (existingUser) {
+    throw new Error('중복된 닉네임');
+  }
+  await updateUserNickname(kakaoId, nickname);
+
+  return { message: '닉네임 등록 성공' };
 };
 
 // 로그아웃
@@ -122,6 +141,7 @@ const deleteKakaoAccount = async (kakaoId) => {
 module.exports = {
   kakaoLogin,
   kakaoCallback,
+  registerNickname, // 추가된 부분
   kakaoLogout,
   deleteKakaoAccount,
 };
