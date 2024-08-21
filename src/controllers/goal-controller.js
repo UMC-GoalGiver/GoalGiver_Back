@@ -209,6 +209,7 @@ exports.getUserGoals = async (req, res, next) => {
 // 작성자: Minjae Han
 
 const { createGoal } = require('../services/goal-service');
+const { getPoint } = require('../models/goal-model');
 
 exports.createGoal = async (req, res, next) => {
   try {
@@ -219,7 +220,8 @@ exports.createGoal = async (req, res, next) => {
         .json({ error: '유효하지 않은 사용자 ID입니다.' });
     }
 
-    const { title, startDate, endDate, type, validationType } = req.body;
+    const { title, startDate, endDate, type, validationType, donationAmount } =
+      req.body;
 
     // 필수 필드 검증
     if (!title || !startDate || !endDate || !type || !validationType) {
@@ -227,7 +229,13 @@ exports.createGoal = async (req, res, next) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ error: '유효하지 않은 요청입니다.' });
     }
-
+    console.log(userId);
+    const prevPoint = await getPoint(userId);
+    if (donationAmount > prevPoint) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ error: '기부 포인트가 부족합니다.' });
+    }
     const goalData = req.body;
     goalData.userId = userId;
 

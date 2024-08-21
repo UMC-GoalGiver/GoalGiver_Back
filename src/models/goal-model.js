@@ -304,16 +304,16 @@ exports.createPersonalGoal = async (goalData) => {
   const values = [
     goalData.userId,
     goalData.title,
-    goalData.description,
+    (goalData.description = ''),
     goalData.startDate,
     goalData.endDate,
     goalData.type,
     goalData.validationType,
-    goalData.latitude,
-    goalData.longitude,
-    goalData.emoji,
-    goalData.donationOrganizationId,
-    goalData.donationAmount,
+    (goalData.latitude = null),
+    (goalData.longitude = null),
+    (goalData.emoji = ''),
+    (goalData.donationOrganizationId = null),
+    (goalData.donationAmount = 0),
   ];
 
   const [result] = await pool.execute(query, values);
@@ -468,4 +468,12 @@ exports.insertGoalValidation = async (
     'insert into goal_validation (goal_id, goal_instance_id, validated_at, validation_data) values (?, ?, ?, ?)',
     [goalId, instance_id, validatedAt, JSON.stringify({ latitude, longitude })]
   );
+};
+
+exports.getPoint = async (userId) => {
+  console.log(userId);
+  const query = 'SELECT points from users where id = ?';
+  const [rows] = await pool.execute(query, [userId]);
+  console.log(rows[0].points);
+  return rows[0].points;
 };
