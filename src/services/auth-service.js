@@ -5,6 +5,7 @@ const {
   updateUserTokens,
   deleteUserByKakaoId,
   findUserByNickname,
+  updateUserNickname,
 } = require('../models/user-model');
 require('dotenv').config();
 
@@ -87,6 +88,15 @@ const registerNickname = async (kakaoId, nickname) => {
   return { message: '닉네임 등록 성공' };
 };
 
+// 닉네임 중복 확인
+const checkNicknameDuplicate = async (nickname) => {
+  const existingUser = await findUserByNickname(nickname);
+  if (existingUser) {
+    throw new Error('중복된 닉네임');
+  }
+  return { message: '사용 가능한 닉네임' };
+};
+
 // 로그아웃
 const kakaoLogout = async (kakaoId) => {
   const user = await findUserByKakaoId(kakaoId);
@@ -141,7 +151,8 @@ const deleteKakaoAccount = async (kakaoId) => {
 module.exports = {
   kakaoLogin,
   kakaoCallback,
-  registerNickname, // 추가된 부분
+  registerNickname,
+  checkNicknameDuplicate,
   kakaoLogout,
   deleteKakaoAccount,
 };
