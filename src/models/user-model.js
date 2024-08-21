@@ -28,12 +28,17 @@ const deleteUserByKakaoId = async (kakaoId) => {
 };
 
 const findUserByNickname = async (nickname) => {
-  const [rows] = await pool.query('SELECT * FROM users WHERE nickname = ?', [nickname]);
+  const [rows] = await pool.query('SELECT * FROM users WHERE nickname = ?', [
+    nickname,
+  ]);
   return rows[0];
 };
 
 const updateUserNickname = async (kakaoId, nickname) => {
-  await pool.query('UPDATE users SET nickname = ? WHERE kakaoId = ?', [nickname, kakaoId]);
+  await pool.query('UPDATE users SET nickname = ? WHERE kakaoId = ?', [
+    nickname,
+    kakaoId,
+  ]);
 };
 
 module.exports = {
@@ -42,5 +47,5 @@ module.exports = {
   updateUserTokens,
   deleteUserByKakaoId,
   findUserByNickname,
-  updateUserNickname, 
+  updateUserNickname,
 };
