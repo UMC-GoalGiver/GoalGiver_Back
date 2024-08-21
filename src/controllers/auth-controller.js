@@ -1,4 +1,4 @@
-const { kakaoLogin, kakaoCallback, kakaoLogout, deleteKakaoAccount } = require('../services/auth-service');
+const { kakaoLogin, kakaoCallback, registerNickname, checkNicknameDuplicate, kakaoLogout, deleteKakaoAccount } = require('../services/auth-service');
 const { StatusCodes } = require('http-status-codes');
 
 exports.kakaoLogin = (req, res) => {
@@ -25,6 +25,17 @@ exports.registerNickname = async (req, res, next) => {
   try {
     const { kakaoId, nickname } = req.body; // 클라이언트로부터 kakaoId와 nickname을 받아옴
     const result = await registerNickname(kakaoId, nickname);
+    res.status(StatusCodes.OK).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 닉네임 중복 확인
+exports.checkNicknameDuplicate = async (req, res, next) => {
+  try {
+    const { nickname } = req.body;
+    const result = await checkNicknameDuplicate(nickname);
     res.status(StatusCodes.OK).json(result);
   } catch (error) {
     next(error);
