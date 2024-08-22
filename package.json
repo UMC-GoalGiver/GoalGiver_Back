@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node ./src/index",
-    "prepare": "husky install",
-    "test": "jest"
+    "start": "node ./src/index",
+    "dev": "nodemon --exec babel-node ./src/index",
+    "test": "jest",
+    "lint": "eslint . --ext .js --fix",
+    "format": "prettier --write \"**/*.{js,json}\""
   },
   "repository": {
     "type": "git",
