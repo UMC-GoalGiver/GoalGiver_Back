@@ -30,6 +30,32 @@ exports.sendMessageToFriend = async (req, res, next) => {
   }
 };
 
+// 초대 수락 처리
+exports.acceptInvite = async (req, res, next) => {
+  const { inviterId } = req.query;
+  const kakaoUserId = req.user.kakaoId;
+
+  try {
+    const existingUser = await User.findOne({ where: { kakaoId: kakaoUserId } });
+
+    if (existingUser) {
+      const isAlreadyFriend = await areFriends(existingUser.id, inviterId);
+
+      if (isAlreadyFriend) {
+        return res.status(StatusCodes.OK).json({ message: '이미 친구입니다.' });
+      }
+
+      await addFriend(existingUser.id, inviterId);
+      res.status(StatusCodes.OK).json({ message: '친구가 되었습니다.' });
+    } else {
+      //사용자가 아닐경우 첫 화면으로 리디렉션 (수정필요)
+      res.redirect(`/signup?inviterId=${inviterId}`);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 // 앱 내 사용자 검색
 exports.searchUser = async (req, res, next) => {
   try {

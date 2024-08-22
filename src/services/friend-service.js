@@ -95,3 +95,14 @@ const findAndAcceptFriendRequest = async (userId, requestId) => {
     await FriendRequest.deleteFriendRequest(requestId);
   }
 };
+
+//이미 친구인지
+exports.areFriends = async (userId, friendId) => {
+  const existingFriend = await Friend.findOne({
+    where: {
+      userId: userId,
+      friendId: friendId,
+    },
+  });
+  return !!existingFriend; // 친구 관계가 있으면 true 반환
+};
