@@ -115,7 +115,7 @@ exports.saveValidationResult = async (goalId, instanceId, photoUrl) => {
  */
 exports.notifyTeamMembers = async (instanceId, user) => {
   const query =
-    'SELECT user_id FROM Team_Members WHERE team_goal_id = (SELECT goal_id FROM Goal_Instances WHERE id = ?)';
+    'SELECT user_id FROM Team_Members WHERE team_goal_id = (select id from Team_Goals where goal_id = (select goal_id from Goal_Instances where id = ?))';
   const [members] = await pool.query(query, [instanceId]);
 
   const goal = await this.getGoalByInstanceId(instanceId);
@@ -160,10 +160,12 @@ exports.notifyTeamMembers = async (instanceId, user) => {
  * @param {number} requesterId - 요청자의 사용자 ID
  */
 exports.initializeTeamValidation = async (instanceId, requesterId) => {
+  console.log(instanceId, requesterId);
   const query =
-    'SELECT user_id FROM Team_Members WHERE team_goal_id = (select goal_id from Goal_Instances where id = ?)';
+    'SELECT user_id FROM Team_Members WHERE team_goal_id = (select id from Team_Goals where goal_id = (select goal_id from Goal_Instances where id = ?))';
   // 팀원 정보를 가져옵니다.
   const [members] = await pool.query(query, [instanceId]);
+  console.log(members);
 
   // 팀원 정보가 없을 경우 오류를 반환합니다.
   if (members.length === 0) {
@@ -174,8 +176,9 @@ exports.initializeTeamValidation = async (instanceId, requesterId) => {
   for (const member of members) {
     if (member.user_id !== requesterId) {
       const query =
-        'INSERT INTO Team_Validtaion (validation_id, user_id, sender_id) VALUES ((SELECT id FROM Goal_Validation WHERE goal_instance_id = ?), ?, ?)';
+        'INSERT INTO Team_Validation (validation_id, user_id, sender_id) VALUES ((SELECT id FROM Goal_Validation WHERE goal_instance_id = ?), ?, ?)';
       await pool.query(query, [instanceId, member.user_id, requesterId]); // sender_id 값도 삽입하게끔 쿼리문 변경
+      console.log('여기까진 완료');
     }
   }
 };
@@ -350,15 +353,21 @@ exports.createTeamGoal = async (goalData) => {
         goalData.endDate,
         goalData.type,
         goalData.validationType,
-        goalData.latitude,
-        goalData.longitude,
-        goalData.emoji,
-        goalData.donationOrganizationId,
-        goalData.donationAmount,
+        (goalData.latitude = null),
+        (goalData.longitude = null),
+        (goalData.emoji = ''),
+        (goalData.donationOrganizationId = null),
+        (goalData.donationAmount = 0),
       ]
     );
 
     const goalId = goalResult.insertId;
+    console.log(
+      goalId,
+      goalData.timeAttack,
+      goalData.startTime,
+      goalData.endTime
+    );
 
     // Team_Goals 테이블에 추가 정보 삽입
     const [teamGoalResult] = await connection.execute(
@@ -366,7 +375,12 @@ exports.createTeamGoal = async (goalData) => {
       INSERT INTO Team_Goals (goal_id, time_attack, start_time, end_time)
       VALUES (?, ?, ?, ?)
     `,
-      [goalId, goalData.timeAttack, goalData.startTime, goalData.endTime]
+      [
+        goalId,
+        goalData.timeAttack,
+        goalData.startTime || null,
+        goalData.endTime || null,
+      ]
     );
 
     // Team_Members 테이블에 팀원 정보 삽입
@@ -468,6 +482,12 @@ exports.insertGoalValidation = async (
     'insert into Goal_Validation (goal_id, goal_instance_id, validated_at, validation_data) values (?, ?, ?, ?)',
     [goalId, instance_id, validatedAt, JSON.stringify({ latitude, longitude })]
   );
+};
+
+exports.updateGoalValidation = async (goalInstance) => {
+  const query =
+    'insert into Goal_Validation (goal_id, goal_instance_id) values (?, ?)';
+  await pool.execute(query, [goalInstance.id, goalInstance.instance_id]);
 };
 
 exports.getPoint = async (userId) => {

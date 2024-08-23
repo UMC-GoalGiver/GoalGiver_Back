@@ -167,6 +167,7 @@ exports.uploadPhotoAndValidate = async (req) => {
   return photoUrl;
 };
 
+const { updateGoalValidation } = require('../models/goal-model');
 exports.requestTeamValidationService = async (instanceId, user) => {
   const goalInstance = await getGoalByInstanceId(instanceId);
   if (!goalInstance) {
@@ -178,6 +179,7 @@ exports.requestTeamValidationService = async (instanceId, user) => {
   if (goalInstance.type !== 'team') {
     throw new Error('유효한 목표 타입이 아닙니다.');
   }
+  await updateGoalValidation(goalInstance);
   // 팀원 인증 초기화
   await initializeTeamValidation(instanceId, user.id);
 
