@@ -312,11 +312,11 @@ exports.createPersonalGoal = async (goalData) => {
     goalData.endDate,
     goalData.type,
     goalData.validationType,
-    (goalData.latitude = null),
-    (goalData.longitude = null),
-    (goalData.emoji = ''),
-    (goalData.donationOrganizationId = null),
-    (goalData.donationAmount = 0),
+    goalData.latitude || null, // 여기서 goalData.latitude가 null이 아니면 그 값을 사용하고, null이면 null로 처리
+    goalData.longitude || null, // 마찬가지로 goalData.longitude의 기본값 처리
+    goalData.emoji || '', // 이모지 기본값을 빈 문자열로 처리
+    goalData.donationOrganizationId || null, // 기부 기관 ID가 없으면 null로 처리
+    goalData.donationAmount || 0, // 기부 금액이 없으면 0으로 처리
   ];
 
   const [result] = await pool.execute(query, values);
@@ -353,21 +353,15 @@ exports.createTeamGoal = async (goalData) => {
         goalData.endDate,
         goalData.type,
         goalData.validationType,
-        (goalData.latitude = null),
-        (goalData.longitude = null),
-        (goalData.emoji = ''),
-        (goalData.donationOrganizationId = null),
-        (goalData.donationAmount = 0),
+        goalData.latitude || null, // 기본값 처리를 통해 올바른 값이 들어가도록 수정
+        goalData.longitude || null, // 기본값 처리를 통해 올바른 값이 들어가도록 수정
+        goalData.emoji || '', // 기본값 처리를 통해 올바른 값이 들어가도록 수정
+        goalData.donationOrganizationId || null, // 기본값 처리를 통해 올바른 값이 들어가도록 수정
+        goalData.donationAmount || 0, // 기본값 처리를 통해 올바른 값이 들어가도록 수정
       ]
     );
 
     const goalId = goalResult.insertId;
-    console.log(
-      goalId,
-      goalData.timeAttack,
-      goalData.startTime,
-      goalData.endTime
-    );
 
     // Team_Goals 테이블에 추가 정보 삽입
     const [teamGoalResult] = await connection.execute(
@@ -377,9 +371,9 @@ exports.createTeamGoal = async (goalData) => {
     `,
       [
         goalId,
-        goalData.timeAttack,
-        goalData.startTime || null,
-        goalData.endTime || null,
+        goalData.timeAttack || false, // 기본값을 false로 설정
+        goalData.startTime || null, // 기본값 처리를 통해 올바른 값이 들어가도록 수정
+        goalData.endTime || null, // 기본값 처리를 통해 올바른 값이 들어가도록 수정
       ]
     );
 
