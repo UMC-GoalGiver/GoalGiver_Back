@@ -19,6 +19,9 @@ const teamGoalTimeAttackRoutes = require('./routes/timeattack-goal-routes.js');
 const teamGoalTimeAttackValidationRoutes = require('./routes/timeattack-validation-routes.js');
 const validationPhotoRoutes = require('./routes/validation-photo-routes.js');
 
+// 카카오 인증 미들웨어 추가
+const kakaoAuthMiddleware = require('./middlewares/kakaoAuthMiddleware');
+
 const app = express();
 app.set('port', process.env.PORT || 3000);
 
@@ -44,22 +47,35 @@ app.use('/api/auth', authRoutes);
 
 app.use('/api/friends', friendRoutes); // 친구목록 라우터
 
-app.use('/goals', goalRouter);
+// 인증이 필요한 라우터 앞에 kakaoAuthMiddleware 추가
+app.use('/goals', kakaoAuthMiddleware, goalRouter);
 
-app.use('/mypage', mypageRouter); // 작성자: Minjae Han
+app.use('/mypage', kakaoAuthMiddleware, mypageRouter);
 
-app.use('/notification', notificationRouter);
+app.use('/notification', kakaoAuthMiddleware, notificationRouter);
 
-app.use('/token', tokenRouter);
+app.use('/token', kakaoAuthMiddleware, tokenRouter);
 
-// 준구리 부분
-app.use('/goals/week', weeklyGoalRoutes); // 주간 진행상황 라우터
-app.use('/goals/month', monthlyGoalRoutes); // 월간 진행상황 라우터
-app.use('/goals/year', yearlyGoalRoutes); // 연간 진행상황 라우터
-app.use('/goals/location-team/list', validationLocationAndTeamRoutes); // 위치인증, 팀원인증 인증내역 라우터
-app.use('/goals/timeattack/progress', teamGoalTimeAttackRoutes); // 팀목표 진행상황 라우터
-app.use('/goals/timeattack/list', teamGoalTimeAttackValidationRoutes); // 팀목표 인증내역 라우터
-app.use('/goals/photo/list', validationPhotoRoutes); // 사진 인증내역 라우터
+// 준구리 부분 - 인증이 필요한 라우터에만 미들웨어 추가
+app.use('/goals/week', kakaoAuthMiddleware, weeklyGoalRoutes); // 주간 진행상황 라우터
+app.use('/goals/month', kakaoAuthMiddleware, monthlyGoalRoutes); // 월간 진행상황 라우터
+app.use('/goals/year', kakaoAuthMiddleware, yearlyGoalRoutes); // 연간 진행상황 라우터
+app.use(
+  '/goals/location-team/list',
+  kakaoAuthMiddleware,
+  validationLocationAndTeamRoutes
+); // 위치인증, 팀원인증 인증내역 라우터
+app.use(
+  '/goals/timeattack/progress',
+  kakaoAuthMiddleware,
+  teamGoalTimeAttackRoutes
+); // 팀목표 진행상황 라우터
+app.use(
+  '/goals/timeattack/list',
+  kakaoAuthMiddleware,
+  teamGoalTimeAttackValidationRoutes
+); // 팀목표 인증내역 라우터
+app.use('/goals/photo/list', kakaoAuthMiddleware, validationPhotoRoutes); // 사진 인증내역 라우터
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
