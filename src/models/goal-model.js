@@ -9,7 +9,7 @@ const pool = require('../../config/database');
  */
 exports.isValidationComplete = async (instanceId, userId) => {
   const query =
-    'select is_accepted from team_validation where validation_id = (select id from goal_validation where goal_instance_id = ?) and user_id = ?';
+    'select is_accepted from Team_Validation where validation_id = (select id from Goal_Validation where Goal_Instance_id = ?) and user_id = ?';
   try {
     const [rows] = await pool.execute(query, [instanceId, userId]);
     console.log(rows.length);
@@ -27,7 +27,7 @@ exports.isValidationComplete = async (instanceId, userId) => {
  */
 exports.updateTeamValidation = async (instanceId, userId) => {
   const query =
-    'update team_validation set is_accepted = true, accepted_at = now() where validation_id = (select id from goal_validation where goal_instance_id = ?) and user_id = ?';
+    'update Team_Validation set is_accepted = true, accepted_at = now() where validation_id = (select id from Goal_Validation where goal_instance_id = ?) and user_id = ?';
   await pool.execute(query, [instanceId, userId]);
 };
 
@@ -39,7 +39,7 @@ exports.updateTeamValidation = async (instanceId, userId) => {
  */
 exports.areAllTeamMembersAccepted = async (instanceId) => {
   const query =
-    'select count(*) as total, sum(is_accepted) as accepted from team_validation where validation_id = (select id from goal_validation where goal_instance_id = ?)';
+    'select count(*) as total, sum(is_accepted) as accepted from Team_Validation where validation_id = (select id from Goal_Validation where goal_instance_id = ?)';
   const [rows] = await pool.execute(query, [instanceId]);
 
   return rows[0].total === Number(rows[0].accepted);
@@ -53,7 +53,7 @@ exports.areAllTeamMembersAccepted = async (instanceId) => {
  */
 exports.markGoalValidationAsCompleted = async (instanceId) => {
   const query =
-    'update goal_validation set validated_at = now() where goal_instance_id = ?';
+    'update Goal_Validation set validated_at = now() where goal_instance_id = ?';
   await pool.execute(query, [instanceId]);
 };
 
@@ -65,7 +65,7 @@ exports.markGoalValidationAsCompleted = async (instanceId) => {
  */
 exports.deleteNotification = async (instanceId) => {
   const query = `
-  DELETE FROM notifications 
+  DELETE FROM Notifications 
   WHERE JSON_EXTRACT(content, '$.goal.instance_id') = CAST(? AS JSON)
 `;
 
@@ -85,7 +85,7 @@ exports.deleteNotification = async (instanceId) => {
  */
 exports.getGoalByInstanceId = async (instanceId) => {
   const query =
-    'SELECT g.*, gi.id as instance_id FROM goals g JOIN goal_instances gi ON g.id = gi.goal_id WHERE gi.id = ?';
+    'SELECT g.*, gi.id as instance_id FROM Goals g JOIN Goal_Instances gi ON g.id = gi.goal_id WHERE gi.id = ?';
   const [rows] = await pool.execute(query, [instanceId]);
 
   if (rows.length === 0) {
@@ -103,7 +103,7 @@ exports.getGoalByInstanceId = async (instanceId) => {
  */
 exports.saveValidationResult = async (goalId, instanceId, photoUrl) => {
   const query =
-    'insert into goal_validation (goal_id, goal_instance_id, validated_at, validation_data) values(?, ?, now(), ?)';
+    'insert into Goal_Validation (goal_id, goal_instance_id, validated_at, validation_data) values(?, ?, now(), ?)';
   await pool.execute(query, [goalId, instanceId, photoUrl]);
 };
 
@@ -115,7 +115,7 @@ exports.saveValidationResult = async (goalId, instanceId, photoUrl) => {
  */
 exports.notifyTeamMembers = async (instanceId, user) => {
   const query =
-    'SELECT user_id FROM team_members WHERE team_goal_id = (SELECT goal_id FROM goal_instances WHERE id = ?)';
+    'SELECT user_id FROM Team_Members WHERE team_goal_id = (SELECT goal_id FROM Goal_Instances WHERE id = ?)';
   const [members] = await pool.query(query, [instanceId]);
 
   const goal = await this.getGoalByInstanceId(instanceId);
@@ -132,7 +132,7 @@ exports.notifyTeamMembers = async (instanceId, user) => {
           title: goal.title,
         },
       });
-      const checkQuery = `SELECT COUNT(*) AS count FROM notifications WHERE user_id = ?
+      const checkQuery = `SELECT COUNT(*) AS count FROM Notifications WHERE user_id = ?
                               AND JSON_EXTRACT(content, '$.goal.instance_id') = CAST(? AS JSON)`;
       const [existingNotifications] = await pool.execute(checkQuery, [
         member.user_id,
@@ -144,7 +144,7 @@ exports.notifyTeamMembers = async (instanceId, user) => {
       }
       try {
         const query =
-          'INSERT INTO notifications (user_id, content) VALUES (?, ?)';
+          'INSERT INTO Notifications (user_id, content) VALUES (?, ?)';
         await pool.query(query, [member.user_id, content]);
       } catch (error) {
         console.error('Error inserting notification:', error); // 에러 로그
@@ -161,7 +161,7 @@ exports.notifyTeamMembers = async (instanceId, user) => {
  */
 exports.initializeTeamValidation = async (instanceId, requesterId) => {
   const query =
-    'SELECT user_id FROM team_members WHERE team_goal_id = (select goal_id from goal_instances where id = ?)';
+    'SELECT user_id FROM Team_Members WHERE team_goal_id = (select goal_id from Goal_Instances where id = ?)';
   // 팀원 정보를 가져옵니다.
   const [members] = await pool.query(query, [instanceId]);
 
@@ -174,7 +174,7 @@ exports.initializeTeamValidation = async (instanceId, requesterId) => {
   for (const member of members) {
     if (member.user_id !== requesterId) {
       const query =
-        'INSERT INTO team_validation (validation_id, user_id, sender_id) VALUES ((SELECT id FROM goal_validation WHERE goal_instance_id = ?), ?, ?)';
+        'INSERT INTO Team_Validtaion (validation_id, user_id, sender_id) VALUES ((SELECT id FROM Goal_Validation WHERE goal_instance_id = ?), ?, ?)';
       await pool.query(query, [instanceId, member.user_id, requesterId]); // sender_id 값도 삽입하게끔 쿼리문 변경
     }
   }
@@ -188,7 +188,7 @@ exports.initializeTeamValidation = async (instanceId, requesterId) => {
  */
 exports.checkForExistingValidation = async (instanceId) => {
   const query =
-    'SELECT COUNT(*) as count FROM goal_validation WHERE goal_instance_id = ? AND validated_at IS NOT NULL';
+    'SELECT COUNT(*) as count FROM Goal_Validation WHERE goal_instance_id = ? AND validated_at IS NOT NULL';
   const [rows] = await pool.execute(query, [instanceId]);
 
   return rows[0].count > 0; // 중복이 있으면 true, 없으면 false
@@ -207,8 +207,8 @@ exports.getGoalsByDateRange = async (userId, week_start, week_end) => {
   const query = `
     SELECT g.id as goal_id, gi.id as goal_instance_id, title, description, start_date, end_date, type, status,
     latitude, longitude, validation_type, emoji, donation_organization_id, donation_amount, gi.date
-    FROM goals g
-    JOIN goal_instances gi ON g.id = gi.goal_id
+    FROM Goals g
+    JOIN Goal_Instances gi ON g.id = gi.goal_id
     WHERE g.user_id = ? AND gi.date >= ? AND gi.date <= ?
   `;
 
@@ -429,7 +429,7 @@ exports.createGoalRepeat = async (goalId, repeatData) => {
  */
 exports.getGoalByInstanceId = async (instanceId) => {
   const [rows] = await pool.query(
-    'SELECT g.*, gi.id as instance_id FROM goals g JOIN goal_instances gi ON g.id = gi.goal_id WHERE gi.id = ?',
+    'SELECT g.*, gi.id as instance_id FROM Goals g JOIN Goal_Instances gi ON g.id = gi.goal_id WHERE gi.id = ?',
     [instanceId]
   );
 
@@ -442,7 +442,7 @@ exports.getGoalByInstanceId = async (instanceId) => {
 
 exports.isValidationComplete = async (instanceId) => {
   const query =
-    'select 1 from goal_validation where goal_instance_id = ? and validated_at is not null';
+    'select 1 from Goal_Validation where goal_instance_id = ? and validated_at is not null';
   const [rows] = await pool.execute(query, [instanceId]);
 
   return rows.length > 0;
@@ -465,7 +465,7 @@ exports.insertGoalValidation = async (
   validatedAt
 ) => {
   await pool.query(
-    'insert into goal_validation (goal_id, goal_instance_id, validated_at, validation_data) values (?, ?, ?, ?)',
+    'insert into Goal_Validation (goal_id, goal_instance_id, validated_at, validation_data) values (?, ?, ?, ?)',
     [goalId, instance_id, validatedAt, JSON.stringify({ latitude, longitude })]
   );
 };
