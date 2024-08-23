@@ -1,7 +1,7 @@
 const pool = require('../../config/database');
 
 const findUserByKakaoId = async (kakaoId) => {
-  const [rows] = await pool.query('SELECT * FROM users WHERE kakaoId = ?', [
+  const [rows] = await pool.query('SELECT * FROM Users WHERE kakaoId = ?', [
     kakaoId,
   ]);
   return rows[0];
@@ -10,7 +10,7 @@ const findUserByKakaoId = async (kakaoId) => {
 const createUser = async (userData) => {
   const { kakaoId, email, nickname, profileImage, refreshToken } = userData;
   const [result] = await pool.query(
-    'INSERT INTO users (kakaoId, email, nickname, profile_photo, refreshToken) VALUES (?, ?, ?, ?, ?)',
+    'INSERT INTO Users (kakaoId, email, nickname, profile_image, refreshToken) VALUES (?, ?, ?, ?, ?)',
     [kakaoId, email, nickname, profileImage, refreshToken]
   );
   return result.insertId;
@@ -18,24 +18,24 @@ const createUser = async (userData) => {
 
 const updateUserTokens = async (kakaoId, accessToken, refreshToken) => {
   await pool.query(
-    'UPDATE users SET accessToken = ?, refreshToken = ? WHERE kakaoId = ?',
+    'UPDATE Users SET accessToken = ?, refreshToken = ? WHERE kakaoId = ?',
     [accessToken, refreshToken, kakaoId]
   );
 };
 
 const deleteUserByKakaoId = async (kakaoId) => {
-  await pool.query('DELETE FROM users WHERE kakaoId = ?', [kakaoId]);
+  await pool.query('DELETE FROM Users WHERE kakaoId = ?', [kakaoId]);
 };
 
 const findUserByNickname = async (nickname) => {
-  const [rows] = await pool.query('SELECT * FROM users WHERE nickname = ?', [
+  const [rows] = await pool.query('SELECT * FROM Users WHERE nickname = ?', [
     nickname,
   ]);
   return rows[0];
 };
 
 const updateUserNickname = async (kakaoId, nickname) => {
-  await pool.query('UPDATE users SET nickname = ? WHERE kakaoId = ?', [
+  await pool.query('UPDATE Users SET nickname = ? WHERE kakaoId = ?', [
     nickname,
     kakaoId,
   ]);

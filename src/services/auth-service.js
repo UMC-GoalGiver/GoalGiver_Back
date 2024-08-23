@@ -48,11 +48,11 @@ const kakaoCallback = async (code) => {
       await createUser({
         kakaoId: id,
         email: kakao_account.email || '',
-        nickname: '',
+        nickname: null,
         profileImage: kakao_account.profile?.profile_image_url || '',
         refreshToken: refresh_token,
       });
-      
+
       user = await findUserByKakaoId(id);
     } else {
       // 기존 유저의 토큰 갱신
@@ -67,7 +67,6 @@ const kakaoCallback = async (code) => {
       refreshToken: refresh_token,
       nickname: user.nickname,
     };
-
   } catch (error) {
     console.error(
       '카카오 API 요청 실패:',
@@ -79,10 +78,16 @@ const kakaoCallback = async (code) => {
 
 // 닉네임 설정 및 중복 확인
 const registerNickname = async (kakaoId, nickname) => {
+  //빈 문자열 등록 방지
+  if (!kakaoId || !nickname) {
+    throw new Error('닉네임이 입력되지 않음');
+  }
+
   const existingUser = await findUserByNickname(nickname);
   if (existingUser) {
     throw new Error('중복된 닉네임');
   }
+
   await updateUserNickname(kakaoId, nickname);
 
   return { message: '닉네임 등록 성공' };
