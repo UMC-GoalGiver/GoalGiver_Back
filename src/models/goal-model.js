@@ -227,7 +227,7 @@ exports.getUserGoals = async (userId) => {
     SELECT g.id, g.title, g.description, g.start_date, g.end_date, g.type, g.status,
           g.latitude, g.longitude, g.validation_type, g.emoji,
           g.donation_organization_id, g.donation_amount
-    FROM goals g
+    FROM Goals g
     WHERE g.user_id = ?
   `;
 
@@ -304,7 +304,7 @@ exports.createPersonalGoal = async (goalData) => {
   const values = [
     goalData.userId,
     goalData.title,
-    (goalData.description = ''),
+    goalData.description,
     goalData.startDate,
     goalData.endDate,
     goalData.type,
@@ -472,7 +472,7 @@ exports.insertGoalValidation = async (
 
 exports.getPoint = async (userId) => {
   console.log(userId);
-  const query = 'SELECT points from users where id = ?';
+  const query = 'SELECT points from Users where id = ?';
   const [rows] = await pool.execute(query, [userId]);
   console.log(rows[0].points);
   return rows[0].points;
