@@ -35,15 +35,19 @@ const findValidationById = async (goalId, userId) => {
     // Progress percent 계산
     if (goal.type === 'personal') {
       // 검증된 인스턴스 수와 총 인스턴스 수를 동시에 조회
-const [progressResult] = await db.query(`
+      const [progressResult] = await db.query(
+        `
   SELECT 
     (SELECT COUNT(*) FROM Goal_Validation WHERE goal_id = ?) AS validated_instances,
     (SELECT COUNT(*) FROM Goal_Instances WHERE goal_id = ?) AS total_instances
-`, [goalId, goalId]);
+`,
+        [goalId, goalId]
+      );
 
-const validatedInstances = progressResult[0].validated_instances;
-const totalInstances = progressResult[0].total_instances;
-      const progressPercent = totalInstances > 0 ? (validatedInstances / totalInstances) * 100 : 0;
+      const validatedInstances = progressResult[0].validated_instances;
+      const totalInstances = progressResult[0].total_instances;
+      const progressPercent =
+        totalInstances > 0 ? (validatedInstances / totalInstances) * 100 : 0;
 
       goal.progress_percent = Math.round(progressPercent);
     } else if (goal.type === 'team') {
@@ -53,7 +57,9 @@ const totalInstances = progressResult[0].total_instances;
       );
 
       // 팀 검증의 경우, is_accepted가 true인 경우 100%, false인 경우 0%
-      const isAccepted = teamValidationResult.length > 0 && teamValidationResult.every(validation => validation.is_accepted);
+      const isAccepted =
+        teamValidationResult.length > 0 &&
+        teamValidationResult.every((validation) => validation.is_accepted);
       goal.progress_percent = isAccepted ? 100 : 0;
     }
 
@@ -97,7 +103,11 @@ const totalInstances = progressResult[0].total_instances;
     }
 
     // 인증 내역 조회 시 기간을 목표 시작 날짜부터 종료 날짜까지로 설정
-    const [validationResult] = await db.query(validationQuery, [goalId, goal.start_date, goal.end_date]);
+    const [validationResult] = await db.query(validationQuery, [
+      goalId,
+      goal.start_date,
+      goal.end_date,
+    ]);
 
     // D-Day 계산
     const endDate = new Date(goal.end_date);
@@ -105,10 +115,14 @@ const totalInstances = progressResult[0].total_instances;
     const dDay = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // 밀리초를 일수로 변환
 
     // 날짜를 한국 시간 기준으로 변환
-    goal.start_date = new Date(new Date(goal.start_date).getTime() + KST_OFFSET).toISOString();
-    goal.end_date = new Date(new Date(goal.end_date).getTime() + KST_OFFSET).toISOString();
+    goal.start_date = new Date(
+      new Date(goal.start_date).getTime() + KST_OFFSET
+    ).toISOString();
+    goal.end_date = new Date(
+      new Date(goal.end_date).getTime() + KST_OFFSET
+    ).toISOString();
     goal.d_day = `D - ${dDay}`;
-    goal.progress = validationResult.map(entry => {
+    goal.progress = validationResult.map((entry) => {
       const kstDate = new Date(new Date(entry.date).getTime() + KST_OFFSET);
       return { ...entry, date: kstDate.toISOString() };
     });
