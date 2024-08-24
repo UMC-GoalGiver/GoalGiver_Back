@@ -6,6 +6,7 @@ const {
   acceptFriendRequest,
   rejectFriendRequest,
   showFriends,
+  getFriendRequests
 } = require('../services/friend-service');
 const { StatusCodes } = require('http-status-codes');
 
@@ -42,9 +43,12 @@ exports.searchUser = async (req, res, next) => {
 
 // 앱 내 친구 신청
 exports.addFriend = async (req, res, next) => {
+  const userId = req.user.id; // 토큰에서 사용자 ID를 추출한다고 가정
+  const friendId = req.params.id;
+
   try {
-    const friend = await addFriend(req.user.id, req.params.id);
-    res.status(StatusCodes.CREATED).json(friend);
+    const friendRequest = await addFriend(userId, friendId);
+    res.status(200).json({ message: "친구 신청 전송 완료", friendRequest });
   } catch (error) {
     next(error);
   }
@@ -75,6 +79,16 @@ exports.showFriends = async (req, res, next) => {
   try {
     const friends = await showFriends(req.user.id);
     res.status(StatusCodes.OK).json(friends);
+  } catch (error) {
+    next(error);
+  }
+};
+
+//친구 요청 목록 조회
+exports.getFriendRequests = async (req, res, next) => {
+  try {
+    const friendRequests = await getFriendRequests(req.user.id);
+    res.status(StatusCodes.OK).json(friendRequests);
   } catch (error) {
     next(error);
   }
