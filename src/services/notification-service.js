@@ -23,3 +23,15 @@ exports.sendNotification = async (tokens, notification, data = {}) => {
     throw err;
   }
 };
+
+const { getNotificationsByUserId } = require('../models/notification-model');
+
+exports.getNotificationsByUserId = async (userId) => {
+  try {
+    const notifications = await getNotificationsByUserId(userId);
+    return notifications;
+  } catch (err) {
+    console.error('Error fetching notifications: ', err);
+    throw new Error('알림 조회 중 오류가 발생했습니다.');
+  }
+};
