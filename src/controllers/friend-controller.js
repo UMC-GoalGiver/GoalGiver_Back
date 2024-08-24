@@ -6,6 +6,7 @@ const {
   acceptFriendRequest,
   rejectFriendRequest,
   showFriends,
+  getFriendRequests
 } = require('../services/friend-service');
 const { StatusCodes } = require('http-status-codes');
 
@@ -30,32 +31,6 @@ exports.sendMessageToFriend = async (req, res, next) => {
   }
 };
 
-// 초대 수락 처리
-exports.acceptInvite = async (req, res, next) => {
-  const { inviterId } = req.query;
-  const kakaoUserId = req.user.kakaoId;
-
-  try {
-    const existingUser = await User.findOne({ where: { kakaoId: kakaoUserId } });
-
-    if (existingUser) {
-      const isAlreadyFriend = await areFriends(existingUser.id, inviterId);
-
-      if (isAlreadyFriend) {
-        return res.status(StatusCodes.OK).json({ message: '이미 친구입니다.' });
-      }
-
-      await addFriend(existingUser.id, inviterId);
-      res.status(StatusCodes.OK).json({ message: '친구가 되었습니다.' });
-    } else {
-      //사용자가 아닐경우 첫 화면으로 리디렉션 (수정필요)
-      res.redirect(`/signup?inviterId=${inviterId}`);
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
 // 앱 내 사용자 검색
 exports.searchUser = async (req, res, next) => {
   try {
@@ -68,9 +43,12 @@ exports.searchUser = async (req, res, next) => {
 
 // 앱 내 친구 신청
 exports.addFriend = async (req, res, next) => {
+  const userId = req.user.id; // 토큰에서 사용자 ID를 추출한다고 가정
+  const friendId = req.params.id;
+
   try {
-    const friend = await addFriend(req.user.id, req.params.id);
-    res.status(StatusCodes.CREATED).json(friend);
+    const friendRequest = await addFriend(userId, friendId);
+    res.status(200).json({ message: "친구 신청 전송 완료", friendRequest });
   } catch (error) {
     next(error);
   }
@@ -101,6 +79,16 @@ exports.showFriends = async (req, res, next) => {
   try {
     const friends = await showFriends(req.user.id);
     res.status(StatusCodes.OK).json(friends);
+  } catch (error) {
+    next(error);
+  }
+};
+
+//친구 요청 목록 조회
+exports.getFriendRequests = async (req, res, next) => {
+  try {
+    const friendRequests = await getFriendRequests(req.user.id);
+    res.status(StatusCodes.OK).json(friendRequests);
   } catch (error) {
     next(error);
   }

@@ -13,12 +13,12 @@ const executeQuery = async (query, params = []) => {
 
 // 친구 목록 조회
 exports.getFriends = async (userId) => {
-  const query = 'SELECT * FROM friends WHERE user_id = ?';
+  const query = 'SELECT * FROM Friends WHERE user_id = ?';
   return executeQuery(query, [userId]);
 };
 
 // 친구 추가
 exports.addFriend = async (userId, friendId) => {
-  const query = 'INSERT INTO friends (user_id, friend_id) VALUES (?, ?)';
+  const query = 'INSERT INTO Friends (user_id, friend_id) VALUES (?, ?)';
   await executeQuery(query, [userId, friendId]);
 };
