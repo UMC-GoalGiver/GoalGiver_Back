@@ -243,12 +243,28 @@ exports.getUserGoals = async (userId) => {
   }
 };
 
-// 반복 데이터를 바탕으로 목표 인스턴스를 생성하는 함수
 async function createGoalInstances(goalId, startDate, endDate, repeatData) {
   try {
     const instances = [];
     const start = new Date(startDate);
     const end = new Date(endDate);
+
+    // 한글 요일을 영문 약어로 변환하는 맵핑
+    const dayMapping = {
+      월: 'mon',
+      화: 'tue',
+      수: 'wed',
+      목: 'thu',
+      금: 'fri',
+      토: 'sat',
+      일: 'sun',
+    };
+
+    // daysOfWeek가 문자열로 전달된 경우, 이를 배열로 변환하고 영문 약어로 변환
+    const daysOfWeek = (repeatData.daysOfWeek || '')
+      .split(',')
+      .map((day) => day.trim()) // 공백 제거
+      .map((day) => dayMapping[day]); // 한글 요일을 영문 약어로 변환
 
     if (repeatData.repeatType === 'daily') {
       for (
@@ -259,7 +275,6 @@ async function createGoalInstances(goalId, startDate, endDate, repeatData) {
         instances.push([goalId, date.toISOString().split('T')[0]]);
       }
     } else if (repeatData.repeatType === 'weekly') {
-      const daysOfWeek = repeatData.daysOfWeek || [];
       for (
         let date = new Date(start);
         date <= end;
@@ -296,7 +311,6 @@ async function createGoalInstances(goalId, startDate, endDate, repeatData) {
     throw error;
   }
 }
-
 // 개인 목표 생성 함수
 exports.createPersonalGoal = async (goalData) => {
   const query = `
@@ -417,17 +431,21 @@ exports.createGoalRepeat = async (goalId, repeatData) => {
     VALUES (?, ?, ?, ?, ?)
   `;
 
+  // daysOfWeek가 문자열로 전달될 경우 배열로 변환
+  const daysOfWeekArray = Array.isArray(repeatData.daysOfWeek)
+    ? repeatData.daysOfWeek
+    : repeatData.daysOfWeek.split(',').map((day) => day.trim());
+
   const values = [
     goalId,
     repeatData.repeatType,
-    repeatData.daysOfWeek ? repeatData.daysOfWeek.join(',') : null,
+    daysOfWeekArray.length > 0 ? daysOfWeekArray.join(',') : null,
     repeatData.dayOfMonth || null,
     repeatData.intervalOfDays || null,
   ];
 
   await pool.execute(query, values);
 };
-
 /**
  * @function getGoalByInstanceId
  * @description 인스턴스 ID로 목표 정보를 조회합니다.
