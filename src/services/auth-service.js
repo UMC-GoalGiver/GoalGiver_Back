@@ -15,25 +15,9 @@ const kakaoLogin = () => {
   return kakaoAuthURL;
 };
 
-// 카카오 로그인 콜백 처리
-const kakaoCallback = async (code) => {
+// 클라이언트에서 받은 카카오 엑세스 토큰을 사용하여 사용자 정보 처리
+const kakaoCallback = async (access_token) => {
   try {
-    const tokenResponse = await axios.post(
-      'https://kauth.kakao.com/oauth/token',
-      null,
-      {
-        params: {
-          grant_type: 'authorization_code',
-          client_id: process.env.KAKAO_CLIENT_ID,
-          redirect_uri: process.env.KAKAO_REDIRECT_URI,
-          code: code,
-          client_secret: process.env.KAKAO_CLIENT_SECRET,
-        },
-      }
-    );
-
-    const { access_token, refresh_token } = tokenResponse.data;
-
     const userResponse = await axios.get('https://kapi.kakao.com/v2/user/me', {
       headers: {
         Authorization: `Bearer ${access_token}`,
@@ -50,21 +34,16 @@ const kakaoCallback = async (code) => {
         email: kakao_account.email || '',
         nickname: null,
         profileImage: kakao_account.profile?.profile_image_url || '',
-        refreshToken: refresh_token,
+        refreshToken: null, // 리프레시 토큰을 서버에 저장하지 않음
       });
 
       user = await findUserByKakaoId(id);
-    } else {
-      // 기존 유저의 토큰 갱신
-      await updateUserTokens(id, access_token, refresh_token);
     }
 
     return {
       kakaoId: id,
       email: kakao_account.email || '',
       profileImage: kakao_account.profile?.profile_image_url || '',
-      accessToken: access_token,
-      refreshToken: refresh_token,
       nickname: user.nickname,
     };
   } catch (error) {
@@ -78,7 +57,7 @@ const kakaoCallback = async (code) => {
 
 // 닉네임 설정 및 중복 확인
 const registerNickname = async (kakaoId, nickname) => {
-  //빈 문자열 등록 방지
+  // 빈 문자열 등록 방지
   if (!kakaoId || !nickname) {
     throw new Error('닉네임이 입력되지 않음');
   }
